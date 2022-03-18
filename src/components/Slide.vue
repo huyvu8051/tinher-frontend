@@ -6,8 +6,6 @@
       :queue.sync="queue"
       :offset-y="10"
       @submit="onSubmit"
-      @mousedown.native="mousedown"
-      @mouseup.native="mouseup"
       :max="4"
     >
       <template slot-scope="scope">
@@ -21,8 +19,19 @@
             {{ index }}
           </button>
         </div>
-        <div class="user-info">
-          <span class="fullname"> Rowan Nikolaus </span> <span class="age">20</span> <br> <span class="short-description"> chusng ta cua hien tai, heo kho di nhung ki niem xua kia, ngay mai, nguoi luyen luu theo nhung giac mo tung co, lieu co ta </span>
+        <div class="info-container">
+          <div class="short-info">
+            <span class="fullname"> Rowan Nikolaus </span>
+            <span class="age">20</span> <br />
+            <span class="short-description">
+              chusng ta cua hien tai, heo kho di nhung ki niem xua kia, ngay
+              mai, nguoi luyen luu theo nhung giac mo tung co, lieu co ta
+            </span>
+          </div>
+          <button @click="showMoreInfo">
+            <span class="material-icons-outlined"> info </span>
+          </button>
+          <div class="more-info"></div>
         </div>
 
         <div
@@ -30,14 +39,13 @@
           :key="item.id"
           v-show="item.isShow"
           class="pic"
+          @mousedown="mousedown"
+          @mouseup="mouseup"
           :style="{
             'background-image': `url(https://cn.bing.com//th?id=OHR.${item.id}_UHD.jpg&pid=hp&w=720&h=1280&rs=1&c=4&r=0)`,
           }"
         />
-      </template>
-      <img class="like-pointer" slot="like" src="@/assets/like-txt.png" />
-      <img class="nope-pointer" slot="nope" src="@/assets/nope-txt.png" />
-      <img class="super-pointer" slot="super" src="@/assets/super-txt.png" />
+      </template>chusng ta cua hien tai, heo kho di nhung ki niem xua kia, ngay mai, nguoi luyen luu theo nhung giac mo tung co, lieu co tasuper-txt.png" />
       <img class="rewind-pointer" slot="rewind" src="@/assets/rewind-txt.png" />
     </Tinder>
     <div class="btns">
@@ -69,6 +77,9 @@ export default {
     this.mock();
   },
   methods: {
+    showMoreInfo(e) {
+      console.log("con");
+    },
     mousedown(e) {
       //console.log("mousedown", e);
 
@@ -282,23 +293,35 @@ body {
   background-color: rgb(255, 255, 255);
 }
 
-.user-info {
+.info-container {
+  display: table;
   color: white;
+  bottom: 20px;
   position: absolute;
-  bottom: 30px;
-  left: 10px;
-
   text-align: left;
 }
+
+.short-info {
+  padding: 10px;
+  display: table-cell;
+  width: 90%;
+}
+
+.more-info {
+  width: fit-content;
+}
+
 .fullname {
   font-weight: bold;
   font-size: 32px;
 }
-.short-description{
+.short-description {
   font-size: 17px;
 }
-.age{
-
+.age {
   font-size: 23px;
+}
+.more-info-btn {
+  cursor: pointer;
 }
 </style>
