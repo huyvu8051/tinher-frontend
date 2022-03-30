@@ -81,6 +81,7 @@ export default {
       console.log("con");
     },
     mousedown(e) {
+        this.$success("login success: ");
       //console.log("mousedown", e);
 
       this.offsetX = e.offsetX;
