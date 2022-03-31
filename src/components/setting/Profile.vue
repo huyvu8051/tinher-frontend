@@ -1,7 +1,6 @@
 <template>
   <v-form ref="form">
-    <h-image-wrapper :src="imageLink" />
-    <UploadImage v-model="imageLink" />
+    <ManageProfileImage :images="images" />
     <v-textarea
       name="input-7-1"
       label="About"
@@ -29,13 +28,12 @@
 
     <p>{{ distancePreference }}</p>
 
-
     <v-slider
-     v-model="distancePreference"
-    hint="Distance preference"
-   :max="161"
+      v-model="distancePreference"
+      hint="Distance preference"
+      :max="161"
       :min="0"
-></v-slider>
+    ></v-slider>
 
     <p>{{ agePreference }}</p>
     <v-range-slider
@@ -44,7 +42,6 @@
       :max="100"
       :min="18"
     ></v-range-slider>
-    
 
     <p>Looking for {{ lookingFor }}</p>
     <div>
@@ -64,10 +61,12 @@
 <script>
 import SettingService from "@/services/SettingService";
 
+import ManageProfileImage from "@/components/setting/ManageProfileImage";
 import UploadImage from "@/components/UploadImage";
 export default {
   components: {
     UploadImage,
+    ManageProfileImage,
   },
   data: () => ({
     about: "",
@@ -77,8 +76,15 @@ export default {
     selectedGender: null,
     agePreference: [20, 24],
     lookingFor: [],
-    imageLink: "",
-    distancePreference: 20
+    images: [
+      "https://i.ibb.co/n8pd74P/277363698-302867688656780-4234363800179639193-n.jpg",
+      "https://i.ibb.co/0CBk0ZB/277097823-302762431943013-4196997419560558980-n.jpg",
+      "https://i.ibb.co/WVbPpxD/277349336-2160720654077479-5453383725139124940-n.jpg",
+      "https://i.ibb.co/CHtj7rd/277103649-133227935933331-3069637674950538478-n.jpg",
+      "https://i.ibb.co/30m1MJK/277370931-653715525863211-7232555358844041402-n.jpg",
+      "https://i.ibb.co/tLk8bk5/277461786-139278638626236-3033352952824009429-n.jpg",
+    ],
+    distancePreference: 20,
   }),
   created() {
     SettingService.getAllSettingConfig().then((e) => {

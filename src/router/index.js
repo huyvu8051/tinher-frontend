@@ -22,6 +22,11 @@ const router = new Router({
       path: "/profile",
       name: "setting.profile",
       component: () => import("@/components/setting/Profile"),
+    },
+    {
+      path: "/image",
+      name: "setting.image",
+      component: () => import("@/components/setting/ManageProfileImage"),
     }
   ]
 })

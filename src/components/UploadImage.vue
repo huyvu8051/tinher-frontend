@@ -6,6 +6,7 @@
     @change="uploadFile"
     show-size
     outlined
+    :prepend-icon="icon"
   />
 </template>
 
@@ -14,6 +15,15 @@ import axios from "axios";
 export default {
   props: {
     value: String,
+  },
+  data() {
+    return {
+      uploadStatusIcon: ["mdi-camera", "cloud_upload", "check_circle_outline"],
+      icon: "",
+    };
+  },
+  created() {
+    this.icon = "mdi-camera";
   },
 
   methods: {
@@ -34,16 +44,21 @@ export default {
       body.set("key", "f63d425203fb86deccd1c71333abdd2d");
       body.append("image", file);
 
+      this.icon = "cloud_upload";
+
       axios({
         method: "post",
         url: "https://api.imgbb.com/1/upload",
         data: body,
       })
         .then((response) => {
-          console.log(response.data.display_url)
+          this.icon = "check_circle_outline";
           this.$emit("input", response.data.data.display_url);
         })
-        .catch((error) => console.error(error));
+        .catch((error) => {
+          this.icon = "error";
+          console.error(error);
+        });
     },
   },
 };
