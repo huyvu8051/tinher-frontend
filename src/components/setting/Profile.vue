@@ -1,61 +1,78 @@
 <template>
   <v-form ref="form">
-    <ManageProfileImage :images="images" />
+    <ManageProfileImage :images="userSetting.images" />
     <v-textarea
       name="input-7-1"
       label="About"
-      :value="about"
+      v-model="userSetting.about"
       hint="Tell some think about you"
     >
     </v-textarea>
 
-    <p>passion {{ selectedPassion }}</p>
+    <p>passion {{ userSetting.passions }}</p>
     <div class="passions">
       <v-checkbox
         class="passion-checkbox"
         v-for="(item, index) in passions"
         :key="index"
-        v-model="selectedPassion"
+        v-model="userSetting.passions"
         :label="item"
         :value="item"
       >
       </v-checkbox>
     </div>
 
-    <p>{{ selectedGender }}</p>
+    <p>{{ userSetting.gender }}</p>
 
-    <v-select :items="genders" label="Gender"></v-select>
+    <v-select
+      v-model="userSetting.gender"
+      :items="genders"
+      label="Gender"
+    ></v-select>
 
-    <p>{{ distancePreference }}</p>
+    <p>{{ userSetting.distancePreference }}</p>
 
     <v-slider
-      v-model="distancePreference"
+      v-model="userSetting.distancePreference"
       hint="Distance preference"
       :max="161"
       :min="0"
     ></v-slider>
 
-    <p>{{ agePreference }}</p>
+    <p>{{ userSetting.agePreference }}</p>
     <v-range-slider
-      v-model="agePreference"
+      v-model="userSetting.agePreference"
       hint="Age preference"
       :max="100"
       :min="18"
     ></v-range-slider>
 
-    <p>Looking for {{ lookingFor }}</p>
+    <p>Looking for {{ userSetting.lookingFor }}</p>
     <div>
       <v-checkbox
         v-for="(item, index) in genders"
         :key="index"
-        v-model="lookingFor"
+        v-model="userSetting.lookingFor"
         :label="item"
         :value="item"
       >
       </v-checkbox>
     </div>
 
+    <v-text-field
+      v-model="userSetting.yearOfBirth"
+      type="number"
+      label="Year of birth"
+      append-outer-icon="add"
+      @click:append-outer="increment"
+      prepend-icon="remove"
+      @click:prepend="decrement"
+    ></v-text-field>
+
     <!-- cc -->
+
+    <v-btn @click="backToSlide">back to slide</v-btn>
+    <v-btn @click="save">submit</v-btn>
   </v-form>
 </template>
 <script>
@@ -85,23 +102,45 @@ export default {
       "https://i.ibb.co/tLk8bk5/277461786-139278638626236-3033352952824009429-n.jpg",
     ],
     distancePreference: 20,
+    userSetting: {},
+    picker: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+      .toISOString()
+      .substr(0, 10),
   }),
   created() {
     SettingService.getAllSettingConfig().then((e) => {
-      this.passions = e.data.passions;
-      this.genders = e.data.genders;
+      this.passions = e.data.sysPassions;
+      this.genders = e.data.sysGenders;
+      console.log(e.data);
+      this.userSetting = e.data.userSetting;
     });
   },
 
   methods: {
-    validate() {
-      this.$refs.form.validate();
+    increment() {
+      this.userSetting.yearOfBirth =
+        parseInt(this.userSetting.yearOfBirth, 10) + 1;
     },
-    reset() {
-      this.$refs.form.reset();
+    decrement() {
+      this.userSetting.yearOfBirth =
+        parseInt(this.userSetting.yearOfBirth, 10) - 1;
     },
-    resetValidation() {
-      this.$refs.form.resetValidation();
+    save() {
+      SettingService.save(this.userSetting)
+        .then(e=>{
+          console.log(e)
+          this.$success("Save setting success")
+        })
+        .catch(e=>{
+          console.log(e)
+          this.$error("Save setting error")
+        });
+    },
+    allowedDates: (val) => parseInt(val.split("-")[2], 10) % 2 === 0,
+    backToSlide() {
+      this.$router.push({
+        name: "slide",
+      });
     },
   },
 };

@@ -1,45 +1,44 @@
 <template>
   <div>
     <v-row>
-      <v-col
-        cols="12"
-        sm="6"
-        md="4"
-        lg="3"
-        v-for="(item, index) in images"
-        v-bind:key="index"
-      >
-        <v-card class="mx-auto my-5">
-          <h-image-wrapper :src="item" height="250px" />
+      <draggable :list="images" @change="onUnpublishedChange">
+        <v-col
+          cols="4"
+          v-for="(item, index) in images"
+          :key="index"
+          class="imgg"
+        >
+          <v-card max-width="250px" >
+            <h-image-wrapper :src="item" height="400px" />
 
-          <v-card-actions>
-            <v-spacer />
-            <v-btn
-              color="red"
-              dark
-              fab
-              small
-              depressed
-              @click="deleteItem(index)"
-            >
-              <v-icon> clear </v-icon>
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                color="red"
+                dark
+                fab
+                small
+                depressed
+                @click="deleteItem(index)"
+              >
+                <v-icon> clear </v-icon>
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </draggable>
     </v-row>
-
     <UploadImage @input="addNewImage" />
   </div>
 </template>
 
 <script>
-import SettingImageBox from "@/components/setting/SettingImageBox";
 import UploadImage from "@/components/UploadImage";
-
+import draggable from "vuedraggable";
 export default {
   components: {
     UploadImage,
+    draggable,
   },
   props: {
     images: {
@@ -60,6 +59,9 @@ export default {
     };
   },
   methods: {
+    onUnpublishedChange(e) {
+      //console.log(e, this.images);
+    },
     deleteItem(index) {
       this.images.splice(index, 1);
     },
@@ -71,7 +73,7 @@ export default {
 </script>
 
 <style>
-.imageBox {
+.imgg {
   display: inline-block;
 }
 </style>
