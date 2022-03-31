@@ -6,36 +6,44 @@
     @change="uploadFile"
     show-size
     outlined
-  >
-  </v-file-input>
+  />
 </template>
 
 <script>
-import Api from "@/services/Api";
-
+import axios from "axios";
 export default {
   props: {
     value: String,
   },
+
   methods: {
+    toBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+    },
     // =========================
     uploadFile(file) {
       if (file === null || file === undefined) return;
-      console.log(file);
-      var formData = new FormData();
-      formData.append("file", file);
 
-      Api().post("https://api.imgbb.com/1/upload", {
-        key: "a006f7589a173f443a4e5a84cd5aafd7",
-        image: file,
-      }).then(console.log);
+      let body = new FormData();
 
-      //   HostManageService.upload(formData)
-      //     .then((response) => {
-      //       //console.log(response.data);
-      //       this.$emit("input", response.data);
-      //     })
-      //     .catch(console.log);
+      body.set("key", "f63d425203fb86deccd1c71333abdd2d");
+      body.append("image", file);
+
+      axios({
+        method: "post",
+        url: "https://api.imgbb.com/1/upload",
+        data: body,
+      })
+        .then((response) => {
+          console.log(response.data.display_url)
+          this.$emit("input", response.data.data.display_url);
+        })
+        .catch((error) => console.error(error));
     },
   },
 };

@@ -9,6 +9,7 @@ import EventBus from "@/EventBus"
 import Nofication from "./plugins/Nofication"
 import store from '@/store/store'
 
+import GlobalComponents from "./plugins/GlobalComponents"
 
 import vuetify from './plugins/vuetify'
 
@@ -16,6 +17,7 @@ Vue.config.productionTip = false
 
 Vue.use(Nofication);
 
+Vue.use(GlobalComponents);
 Vue.prototype.$eventBus = EventBus;
 
 /* eslint-disable no-new */

@@ -1,6 +1,7 @@
 <template>
   <v-form ref="form">
-    <UploadImage :value="imageLink" />
+    <h-image-wrapper :src="imageLink" />
+    <UploadImage v-model="imageLink" />
     <v-textarea
       name="input-7-1"
       label="About"
@@ -26,6 +27,16 @@
 
     <v-select :items="genders" label="Gender"></v-select>
 
+    <p>{{ distancePreference }}</p>
+
+
+    <v-slider
+     v-model="distancePreference"
+    hint="Distance preference"
+   :max="161"
+      :min="0"
+></v-slider>
+
     <p>{{ agePreference }}</p>
     <v-range-slider
       v-model="agePreference"
@@ -33,6 +44,7 @@
       :max="100"
       :min="18"
     ></v-range-slider>
+    
 
     <p>Looking for {{ lookingFor }}</p>
     <div>
@@ -65,7 +77,8 @@ export default {
     selectedGender: null,
     agePreference: [20, 24],
     lookingFor: [],
-    imageLink:""
+    imageLink: "",
+    distancePreference: 20
   }),
   created() {
     SettingService.getAllSettingConfig().then((e) => {
