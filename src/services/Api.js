@@ -8,7 +8,7 @@ export default () => {
   var instance = axios.create({
     baseURL: "http://localhost:8081",
     headers: {
-      Authorization: "Bearer " + `${store.state.loginData.jwt}`,
+      Authorization: "Bearer " + `${store.state.jwt}`,
     }
   });
 

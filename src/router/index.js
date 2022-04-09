@@ -27,6 +27,21 @@ const router = new Router({
       path: "/image",
       name: "setting.image",
       component: () => import("@/components/setting/ManageProfileImage"),
+    },
+    {
+      path: "/conversations",
+      name: "conversations",
+      component: () => import("@/components/chat/Conversations"),
+    },
+    {
+      path: "/chatMessages",
+      name: "chatMessages",
+      component: () => import("@/components/chat/ChatMessages"),
+    },
+    {
+      path: "/chat",
+      name: "chat",
+      component: () => import("@/components/chat/Chat"),
     }
   ]
 })

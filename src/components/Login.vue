@@ -1,10 +1,7 @@
 <template>
-  <GoogleLogin
-    :params="params"
-    :onSuccess="onSuccess"
-    :renderParams="renderParams"
-    :onFailure="onFailure"
-  ></GoogleLogin>
+  <div>
+    <v-btn @click="loginWithGoogle()">Google login</v-btn>
+  </div>
 </template>
 
 <script>
@@ -32,19 +29,44 @@ export default {
     };
   },
   methods: {
-    onSuccess(e) {
-      AuthService.login({
-        idToken: e.getAuthResponse().id_token,
-      }).then((res) => {
-        this.$store.commit("saveLoginData", res.data);
-
-        this.$router.push({
-          name: "setting.profile"
-        })
-      });
-    },
+    onSuccess(e) {},
     onFailure(e) {
       this.$error("login false: " + e);
+    },
+    loginWithGoogle() {
+      this.$gAuth
+        .signIn()
+        .then((GoogleUser) => {
+          // on success do something
+          console.log("GoogleUser", GoogleUser);
+          console.log("getId", GoogleUser.getId());
+          console.log("basicprofile", GoogleUser.getBasicProfile().getName());
+          console.log("getBasicProfile", GoogleUser.getBasicProfile());
+          console.log("getAuthResponse", GoogleUser.getAuthResponse());
+          var userInfo = {
+            loginType: "google",
+            google: {
+              auth: GoogleUser.getAuthResponse(),
+              user: {
+                name: GoogleUser.getBasicProfile().getName(),
+                email: GoogleUser.getBasicProfile().getEmail(),
+                profileImage: GoogleUser.getBasicProfile().getImageUrl(),
+              },
+            },
+          };
+          AuthService.login({
+            idToken: GoogleUser.getAuthResponse().id_token,
+          }).then((res) => {
+            this.$store.commit("saveLoginData", res.data);
+
+            this.$router.push({
+              name: "setting.profile",
+            });
+          });
+        })
+        .catch((error) => {
+          console.log("error", error);
+        });
     },
   },
 };

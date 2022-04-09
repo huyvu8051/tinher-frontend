@@ -10,14 +10,16 @@ export default new Vuex.Store({
         createPersistedState()
     ],
     state: {
-        loginData: null
+        loginData: null,
+        jwt: ""
 
 
 
     },
     mutations: {
         saveLoginData(state, data) {
-            state.loginData = data
+            state.loginData = data;
+            state.jwt = data.jwt;
         },
 
 

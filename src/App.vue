@@ -1,8 +1,6 @@
 <template>
   <v-app>
-    <FlexLayout>
       <router-view />
-    </FlexLayout>
     <Nofication />
   </v-app>
   <!-- <img src="./assets/logo.png"> -->
