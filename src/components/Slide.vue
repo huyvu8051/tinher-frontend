@@ -70,7 +70,6 @@ export default {
     queue: [],
     offset: 0,
     history: [],
-    current: 0,
     offsetX: 0,
     offsetY: 0,
   }),
@@ -79,7 +78,7 @@ export default {
   },
   methods: {
     showMoreInfo(e) {
-      console.log("con");
+      console.log("showMoreInfo");
     },
     mousedown(e) {
       this.offsetX = e.offsetX;
@@ -89,25 +88,21 @@ export default {
       //console.log("mouseup", e);
 
       if (this.offsetX === e.offsetX && this.offsetY === e.offsetY) {
-        this.queue[0].images[this.current].isShow = false;
-
         if (e.offsetX > e.srcElement.offsetWidth / 2) {
-          if (this.current < this.queue[0].images.length - 1) {
+          if (this.queue[0].current < this.queue[0].images.length - 1) {
             console.log("right");
-            this.current++;
             this.queue[0].current++;
           }
         } else {
-          if (this.current > 0) {
+          if (this.queue[0].current > 0) {
             console.log("left");
-            this.current--;
             this.queue[0].current--;
           }
         }
 
         //this.queue[0].images[this.current].isShow = true;
 
-        console.log("curr", this.queue[0].current);
+        console.log("Show image ", this.queue[0].current);
       }
     },
 
@@ -129,7 +124,6 @@ export default {
       });
     },
     onSubmit({ item }) {
-      this.current = 0;
       if (this.queue.length < 3) {
         this.mock();
       }

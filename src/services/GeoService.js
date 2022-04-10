@@ -12,9 +12,8 @@ var getLocation = () =>{
 }
 
 function showPosition(position) {
-    console.log("geo: ", position);
 
-    store.commit("saveGeoLocation",position);
+    store.commit("saveGeoLocation",position.coords);
 
 }
 

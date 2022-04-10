@@ -23,7 +23,10 @@ export default new Vuex.Store({
             state.jwt = data.jwt;
         },
         saveGeoLocation(state, data) {
-            state.geoLocation = data;
+            state.geoLocation = {
+                lat: data.latitude,
+                lon: data.longitude
+            };
         },
 
 
