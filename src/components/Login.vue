@@ -50,6 +50,8 @@ export default {
           };
           AuthService.login({
             idToken: GoogleUser.getAuthResponse().id_token,
+            lat: this.$store.state.geoLocation.lat,
+            lon: this.$store.state.geoLocation.lon
           }).then((res) => {
             this.$store.commit("saveLoginData", res.data);
 

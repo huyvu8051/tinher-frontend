@@ -27,7 +27,7 @@
       <v-row v-for="item in messages" :key="item.id">
         <!-- start other chat message -->
 
-        <v-col cols="2" v-if="item.authorId !== $store.state.loginData.userId">
+        <v-col cols="2" v-if="item.authorId !== $store.state.loginData.username">
           <v-container fill-height>
             <v-layout align-center justify-center>
               <v-avatar>
@@ -36,7 +36,7 @@
             </v-layout>
           </v-container>
         </v-col>
-        <v-col cols="9" v-if="item.authorId !== $store.state.loginData.userId">
+        <v-col cols="9" v-if="item.authorId !== $store.state.loginData.username">
           <v-container fill-height>
             <v-layout align-center>
               <v-card class="elevation-2" color="green" dark>
@@ -47,16 +47,16 @@
             </v-layout>
           </v-container>
         </v-col>
-        <v-col cols="1" v-if="item.authorId !== $store.state.loginData.userId">
+        <v-col cols="1" v-if="item.authorId !== $store.state.loginData.username">
         </v-col>
 
         <!-- end other chat message -->
 
         <!-- start my chat message -->
 
-        <v-col cols="4" v-if="item.authorId == $store.state.loginData.userId">
+        <v-col cols="4" v-if="item.authorId == $store.state.loginData.username">
         </v-col>
-        <v-col cols="8" v-if="item.authorId == $store.state.loginData.userId">
+        <v-col cols="8" v-if="item.authorId == $store.state.loginData.username">
           <v-container fill-height>
             <v-layout align-end justify-end>
               <v-card class="elevation-2" color="blue" dark>
@@ -122,7 +122,7 @@ export default {
 
       this.messages.push({
         author: this.$store.state.loginData.fullName,
-        authorId: this.$store.state.loginData.userId,
+        authorId: this.$store.state.loginData.username,
         conversationId: this.converId,
         sentAt: new Date().getTime(),
         text: this.message,

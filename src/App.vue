@@ -1,6 +1,6 @@
 <template>
   <v-app>
-      <router-view />
+    <router-view />
     <Nofication />
   </v-app>
   <!-- <img src="./assets/logo.png"> -->
@@ -17,9 +17,9 @@ export default {
     Nofication,
     FlexLayout,
   },
-  created(){
-    GeoService()
-  }
+  created() {
+    GeoService.getLocation();
+  },
 };
 </script>
 

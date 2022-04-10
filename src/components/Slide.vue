@@ -26,6 +26,27 @@
             <span class="short-description">
               {{ scope.data.about }}
             </span>
+            <div class="short-description">
+              {{
+                getDistance(scope.data.location.lat, scope.data.location.lon) +
+                " km"
+              }}
+            </div>
+            <div class="short-description">
+              {{ scope.data.gender }}
+            </div>
+
+            <div class="short-description">
+              <v-chip
+                class="ma-2"
+                color="green"
+                text-color="white"
+                v-for="(item, index) in scope.data.passions"
+                :key="item + scope.data.id + index"
+              >
+                {{ item }}
+              </v-chip>
+            </div>
           </div>
           <button @click="showMoreInfo">
             <span class="material-icons-outlined"> info </span>
@@ -60,6 +81,8 @@
 <script>
 import Tinder from "vue-tinder";
 import source from "@/components/bing";
+
+import GeoService from "@/services/GeoService";
 
 import MatchService from "@/services/MatchService";
 
@@ -107,7 +130,11 @@ export default {
     },
 
     mock(count = 5, append = true) {
-      MatchService.findAllSuitablePerson({}).then((res) => {
+      console.log("mock");
+      MatchService.findAllSuitablePerson({
+        lat: this.$store.state.geoLocation.lat,
+        lon: this.$store.state.geoLocation.lon,
+      }).then((res) => {
         var list = res.data.list.map((x) => {
           x.current = 0;
           x.id = Math.random();
@@ -123,13 +150,36 @@ export default {
         console.log(this.queue);
       });
     },
-    onSubmit({ item }) {
+    onSubmit(e) {
+      console.log(e);
+
       if (this.queue.length < 3) {
         this.mock();
       }
-      this.history.push(item);
+      this.history.push(e.item);
+
+      switch (e.type) {
+        case "like":
+          console.log("like", e.item.fullName);
+          MatchService.likePartner({
+            partnerId: e.item.username,
+          });
+          break;
+
+        case "nope":
+          console.log("nope", e.item.fullName);
+          break;
+        case "super":
+          console.log("super", e.item.fullName);
+          break;
+
+        default:
+          break;
+      }
     },
+
     async decide(choice) {
+      console.log("choice", choice);
       if (choice === "rewind") {
         if (this.history.length) {
           this.$refs.tinder.rewind([this.history.pop()]);
@@ -143,6 +193,13 @@ export default {
     getAge(yob) {
       var today = new Date();
       return today.getFullYear() - yob;
+    },
+    getDistance(lat, lon) {
+      var currLat = this.$store.state.geoLocation.lat;
+      var currLon = this.$store.state.geoLocation.lon;
+      var dis = GeoService.distance(lat, lon, currLat, currLon);
+
+      return Math.round(dis);
     },
   },
 };
