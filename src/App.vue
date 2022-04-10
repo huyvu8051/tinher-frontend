@@ -9,12 +9,17 @@
 <script>
 import Nofication from "@/components/global/Nofication";
 import FlexLayout from "@/components/global/FlexLayout";
+
+import GeoService from "@/services/GeoService";
 export default {
   name: "App",
   components: {
     Nofication,
     FlexLayout,
   },
+  created(){
+    GeoService()
+  }
 };
 </script>
 

@@ -5,13 +5,11 @@
 </template>
 
 <script>
-import GoogleLogin from "vue-google-login";
 
 import AuthService from "@/services/AuthenticationService";
 
 export default {
   components: {
-    GoogleLogin,
   },
   data() {
     return {
@@ -29,10 +27,6 @@ export default {
     };
   },
   methods: {
-    onSuccess(e) {},
-    onFailure(e) {
-      this.$error("login false: " + e);
-    },
     loginWithGoogle() {
       this.$gAuth
         .signIn()

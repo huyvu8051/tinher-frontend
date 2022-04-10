@@ -4,16 +4,16 @@
       ref="tinder"
       key-name="id"
       :queue.sync="queue"
-      :offset-y="10"
+      :offset-y="5"
       @submit="onSubmit"
-      :max="4"
+      :max="3"
     >
       <template slot-scope="scope">
         <div class="delimiters">
           <button
             class="bullet"
-            v-bind:class="{ active: item.isShow }"
-            v-for="(item, index) in scope.data.list"
+            v-bind:class="{ active: index == scope.data.current }"
+            v-for="(item, index) in scope.data.images"
             :key="item.id"
           >
             {{ index }}
@@ -21,11 +21,10 @@
         </div>
         <div class="info-container">
           <div class="short-info">
-            <span class="fullname"> Rowan Nikolaus </span>
-            <span class="age">20</span> <br />
+            <span class="fullname"> {{ scope.data.fullName }} </span>
+            <span class="age">{{ getAge(scope.data.yearOfBirth) }}</span> <br />
             <span class="short-description">
-              chusng ta cua hien tai, heo kho di nhung ki niem xua kia, ngay
-              mai, nguoi luyen luu theo nhung giac mo tung co, lieu co ta
+              {{ scope.data.about }}
             </span>
           </div>
           <button @click="showMoreInfo">
@@ -33,19 +32,19 @@
           </button>
           <div class="more-info"></div>
         </div>
-
         <div
-          v-for="item in scope.data.list"
+          v-for="(item, index) in scope.data.images"
           :key="item.id"
-          v-show="item.isShow"
+          v-show="index == scope.data.current"
           class="pic"
           @mousedown="mousedown"
           @mouseup="mouseup"
           :style="{
-            'background-image': `url(https://cn.bing.com//th?id=OHR.${item.id}_UHD.jpg&pid=hp&w=720&h=1280&rs=1&c=4&r=0)`,
+            'background-image': `url(` + item.url + `)`,
           }"
         />
-      </template>chusng ta cua hien tai, heo kho di nhung ki niem xua kia, ngay mai, nguoi luyen luu theo nhung giac mo tung co, lieu co tasuper-txt.png" />
+      </template>
+
       <img class="rewind-pointer" slot="rewind" src="@/assets/rewind-txt.png" />
     </Tinder>
     <div class="btns">
@@ -61,6 +60,8 @@
 <script>
 import Tinder from "vue-tinder";
 import source from "@/components/bing";
+
+import MatchService from "@/services/MatchService";
 
 export default {
   name: "App",
@@ -81,9 +82,6 @@ export default {
       console.log("con");
     },
     mousedown(e) {
-        this.$success("login success: ");
-      //console.log("mousedown", e);
-
       this.offsetX = e.offsetX;
       this.offsetY = e.offsetY;
     },
@@ -91,45 +89,44 @@ export default {
       //console.log("mouseup", e);
 
       if (this.offsetX === e.offsetX && this.offsetY === e.offsetY) {
-        this.queue[0].list[this.current].isShow = false;
+        this.queue[0].images[this.current].isShow = false;
 
         if (e.offsetX > e.srcElement.offsetWidth / 2) {
-          if (this.current < this.queue[0].list.length - 1) {
+          if (this.current < this.queue[0].images.length - 1) {
             console.log("right");
             this.current++;
+            this.queue[0].current++;
           }
         } else {
           if (this.current > 0) {
             console.log("left");
             this.current--;
+            this.queue[0].current--;
           }
         }
 
-        this.queue[0].list[this.current].isShow = true;
+        //this.queue[0].images[this.current].isShow = true;
+
+        console.log("curr", this.queue[0].current);
       }
     },
 
     mock(count = 5, append = true) {
-      const list = [];
-      for (let i = 0; i < count; i++) {
-        var rand = Math.floor(Math.random() * 7 + 1);
-        const list2 = [];
-        for (let j = 0; j < rand; j++) {
-          var isShow = j == 0 ? true : false;
-          list2.push({ id: source[this.offset], isShow: isShow });
-          this.offset++;
+      MatchService.findAllSuitablePerson({}).then((res) => {
+        var list = res.data.list.map((x) => {
+          x.current = 0;
+          x.id = Math.random();
+          return x;
+        });
+
+        if (append) {
+          this.queue = this.queue.concat(list);
+        } else {
+          this.queue.unshift(...list);
         }
 
-        list.push({
-          list: list2,
-          id: Math.random(),
-        });
-      }
-      if (append) {
-        this.queue = this.queue.concat(list);
-      } else {
-        this.queue.unshift(...list);
-      }
+        console.log(this.queue);
+      });
     },
     onSubmit({ item }) {
       this.current = 0;
@@ -148,6 +145,10 @@ export default {
       } else {
         this.$refs.tinder.decide(choice);
       }
+    },
+    getAge(yob) {
+      var today = new Date();
+      return today.getFullYear() - yob;
     },
   },
 };

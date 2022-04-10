@@ -9,7 +9,7 @@
           class="imgg"
         >
           <v-card max-width="250px" >
-            <h-image-wrapper :src="item" height="400px" />
+            <h-image-wrapper :src="item.url" height="400px" />
 
             <v-card-actions>
               <v-spacer />
@@ -44,12 +44,12 @@ export default {
     images: {
       type: Array,
       default: () => [
-        "https://i.ibb.co/n8pd74P/277363698-302867688656780-4234363800179639193-n.jpg",
+      /*  "https://i.ibb.co/n8pd74P/277363698-302867688656780-4234363800179639193-n.jpg",
         "https://i.ibb.co/0CBk0ZB/277097823-302762431943013-4196997419560558980-n.jpg",
         "https://i.ibb.co/WVbPpxD/277349336-2160720654077479-5453383725139124940-n.jpg",
         "https://i.ibb.co/CHtj7rd/277103649-133227935933331-3069637674950538478-n.jpg",
         "https://i.ibb.co/30m1MJK/277370931-653715525863211-7232555358844041402-n.jpg",
-        "https://i.ibb.co/tLk8bk5/277461786-139278638626236-3033352952824009429-n.jpg",
+        "https://i.ibb.co/tLk8bk5/277461786-139278638626236-3033352952824009429-n.jpg",  */
       ],
     },
   },

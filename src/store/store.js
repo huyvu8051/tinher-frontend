@@ -10,8 +10,9 @@ export default new Vuex.Store({
         createPersistedState()
     ],
     state: {
-        loginData: null,
-        jwt: ""
+        loginData: {},
+        jwt: "",
+        geoLocation: {}
 
 
 
@@ -20,6 +21,9 @@ export default new Vuex.Store({
         saveLoginData(state, data) {
             state.loginData = data;
             state.jwt = data.jwt;
+        },
+        saveGeoLocation(state, data) {
+            state.geoLocation = data;
         },
 
 
