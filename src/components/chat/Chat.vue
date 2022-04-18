@@ -34,9 +34,8 @@ export default {
   },
   methods: {
     openConver(convId) {
-      console.log(convId);
       this.converId = convId;
-      this.$refs.chatMess.loadChatMessageByConvId(convId, 1);
+      this.$refs.chatMess.changeConversation(this.converId);
     },
     connectSocket() {
       var socket = io.connect("http://localhost:8082");
@@ -49,9 +48,14 @@ export default {
           console.log("connect success!", data);
         });
 
-        socket.on("receiveMessage",()=>{
-             this.$refs.chatMess.loadChatMessageByConvId(this.converId , 1);
+        socket.on("receiveMessage",(converId, message)=>{
+          
              this.$refs.convers.loadConversations();
+
+            if(converId == this.converId){
+              this.$refs.chatMess.receiveNewMessage(message);
+            }
+
         })
 
       return socket;

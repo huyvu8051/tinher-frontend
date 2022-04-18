@@ -5,12 +5,13 @@ export default {
     login(data) {
         return Api().post("/authentication/google/login", data);
     },
-    getAllChatMessage(convId, page) {
+    getAllChatMessage(convId, page, size) {
         return Api().get("/chat/chatMessage", {
             params:
             {
                 convId: convId,
-                page: page
+                page: page,
+                size: size
             }
         }
         );
@@ -21,4 +22,5 @@ export default {
     sendMessage(data) {
         return Api().post("/chat/chatMessage", data);
     },
+  
 }

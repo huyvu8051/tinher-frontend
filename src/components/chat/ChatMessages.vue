@@ -21,22 +21,28 @@
     </div>
     <v-responsive
       class="overflow-y-auto v-responsive-chatMess"
-      max-height="800"
+      height="800px"
       v-scroll.self="onScroll"
     >
-      <v-row v-for="item in messages" :key="item.id">
+      <v-row v-for="(item, key) in messages" :key="key">
         <!-- start other chat message -->
 
-        <v-col cols="2" v-if="item.authorId !== $store.state.loginData.username">
+        <v-col
+          cols="2"
+          v-if="item.authorId !== $store.state.loginData.username"
+        >
           <v-container fill-height>
             <v-layout align-center justify-center>
               <v-avatar>
-                <img src="https://i.pravatar.cc/64" />
+                <v-img :src="item.avatarUrl" />
               </v-avatar>
             </v-layout>
           </v-container>
         </v-col>
-        <v-col cols="9" v-if="item.authorId !== $store.state.loginData.username">
+        <v-col
+          cols="9"
+          v-if="item.authorId !== $store.state.loginData.username"
+        >
           <v-container fill-height>
             <v-layout align-center>
               <v-card class="elevation-2" color="green" dark>
@@ -47,7 +53,10 @@
             </v-layout>
           </v-container>
         </v-col>
-        <v-col cols="1" v-if="item.authorId !== $store.state.loginData.username">
+        <v-col
+          cols="1"
+          v-if="item.authorId !== $store.state.loginData.username"
+        >
         </v-col>
 
         <!-- end other chat message -->
@@ -88,32 +97,83 @@ import ChatService from "@/services/ChatService";
 export default {
   data: () => ({
     converId: "",
-    reverse: true,
     message: "",
     messages: [],
     conversation: null,
-    currMessagePage: 1,
+    currScrollHeigh: 0,
+    avatars: [],
+    pageSize: 8
   }),
+
+  updated() {
+    var container = document.querySelector(".v-responsive-chatMess");
+
+    if (container != null) {
+      container.scrollTop = container.scrollHeight - this.currScrollHeigh;
+    }
+  },
   created() {
     if (this.converId != "") {
-      ChatService.getAllChatMessage(this.converId).then(console.log);
+      ChatService.getAllChatMessage(this.converId);
     }
   },
   methods: {
-    loadChatMessageByConvId(convId, page) {
-      console.log(this.$store.state.loginData.userId);
+   
+    changeConversation(converId) {
+      this.converId = converId;
+      this.message = "";
+      this.messages = [];
+      this.conversation = null;
+      (this.currMessagePage = 1), (this.currScrollHeigh = 0);
+      this.avatars = [];
+      this.loadChatMessageByConvId(this.converId, 1);
+    },
+    receiveNewMessage(msg) {
+      var e = this.messages.find((e) => e.sentAt === msg.sentAt);
+
+      if (e == null) {
+        var userAva = this.avatars.find((f) => f.userid == msg.authorId);
+
+        if (userAva != null) {
+          msg.avatarUrl = userAva.avatarUrl;
+        } else {
+          msg.avatarUrl = "https://i.pravatar.cc/64";
+        }
+        this.currScrollHeigh = 0;
+        this.messages.push(msg);
+      }
+    },
+    async loadChatMessageByConvId(convId, page) {
       this.converId = convId;
-      ChatService.getAllChatMessage(convId, page).then((e) => {
-        console.log(e.data);
-        this.messages = e.data.chatMessages.reverse();
-        this.conversation = e.data.conversation;
-        this.scrollToEnd();
+      var response = await ChatService.getAllChatMessage(convId, page, this.pageSize);
+
+      this.avatars = response.data.avatarUrls;
+
+      var mappedAvatar = response.data.chatMessages.map((e) => {
+        var userAva = this.avatars.find((f) => f.userid == e.authorId);
+
+        if (userAva != null) {
+          e.avatarUrl = userAva.avatarUrl;
+        } else {
+          e.avatarUrl = "https://i.pravatar.cc/64";
+        }
+
+        return e;
       });
+
+      mappedAvatar.forEach((element) => {
+        this.messages.unshift(element);
+      });
+
+      this.conversation = response.data.conversation;
     },
     sendMessage() {
+      var now = new Date().getTime();
+
       ChatService.sendMessage({
         conversationId: this.converId,
         chatMessage: this.message,
+        sentAt: now,
       })
         .then((e) => {
           //this.loadChatMessageByConvId(this.converId);
@@ -124,51 +184,30 @@ export default {
         author: this.$store.state.loginData.fullName,
         authorId: this.$store.state.loginData.username,
         conversationId: this.converId,
-        sentAt: new Date().getTime(),
+        sentAt: now,
         text: this.message,
       });
       this.message = "";
-      this.scrollToEnd();
+      this.currScrollHeigh = 0;
     },
-    scrollToEnd() {
-      var container = document.querySelector(".v-responsive-chatMess");
-      if (container != null) {
-        var scrollHeight = container.scrollHeight;
-        console.log(scrollHeight);
 
-        setTimeout(() => {
-          container.scrollTop = scrollHeight;
-        }, 100);
-      }
-    },
     onScroll(e) {
       if (e.target.scrollTop == 0) {
         var container = document.querySelector(".v-responsive-chatMess");
-        var scrollHeightOld = 0;
+
         if (container != null) {
-          scrollHeightOld = container.scrollHeight;
-          console.log(scrollHeightOld);
+          this.currScrollHeigh = container.scrollHeight;
         }
 
-        console.log("get next page");
-        ChatService.getAllChatMessage(
-          this.converId,
-          ++this.currMessagePage
-        ).then((e) => {
-          console.log(e.data);
-          this.messages = e.data.chatMessages.reverse();
-          this.conversation = e.data.conversation;
+        this.loadChatMessageByConvId(this.converId, this.getNextPage());
 
-          setTimeout(() => {
-            var containerNew = document.querySelector(".v-responsive-chatMess");
-            var scrollHeightNew = containerNew.scrollHeight;
-            console.log(scrollHeightNew);
-            console.log(scrollHeightNew - scrollHeightOld);
-            container.scrollTop = scrollHeightNew - scrollHeightOld;
-          }, 100);
-        });
+        console.log("get next page");
       }
     },
+    getNextPage(){
+      var currPage = Math.round(this.messages.length / this.pageSize);
+      return currPage + 1;
+    }
   },
 };
 </script>

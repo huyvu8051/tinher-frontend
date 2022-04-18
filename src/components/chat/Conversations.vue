@@ -1,5 +1,5 @@
 <template>
-  <v-responsive class="overflow-y-auto v-responsive-conver" max-height="800">
+  <v-responsive class="overflow-y-auto v-responsive-conver" height="600">
     <v-list two-line>
       <template v-for="(item, index) in items">
         <v-divider :key="index" />
@@ -32,27 +32,26 @@ export default {
   created() {
     this.loadConversations();
   },
+  updated() {
+    var container = document.querySelector(".v-responsive-conver");
+    if (container != null) {
+      var scrollHeight = 0;
+      container.scrollTop = scrollHeight;
+    }
+  },
   methods: {
     showConversation(convId) {
       this.$emit("openConver", convId);
     },
     loadConversations() {
       ChatService.getAllConversations().then((e) => {
-        console.log("conversations:", e.data.conversations);
-        this.items = e.data.conversations;
-        this.scrollToTop();
-      });
-    },
-     scrollToTop() {
-      var container = document.querySelector(".v-responsive-conver");
-      if (container != null) {
-        var scrollHeight = 0;
-        console.log(scrollHeight);
+        // console.log("conversations:", e.data.conversations);
+        var convers = e.data.conversations;
 
-        setTimeout(() => {
-          container.scrollTop = scrollHeight;
-        }, 100);
-      }
+        convers.sort((a, b) => b.lastMessageTime - a.lastMessageTime);
+
+        this.items = convers;
+      });
     },
   },
 };

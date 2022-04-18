@@ -127,6 +127,8 @@ export default {
     },
     save() {
       console.log(this.userSetting);
+      this.userSetting.lat = this.$store.state.geoLocation.lat;
+      this.userSetting.lon = this.$store.state.geoLocation.lon;
       SettingService.save(this.userSetting)
         .then(e=>{
           console.log(e)
