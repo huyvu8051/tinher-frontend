@@ -6,9 +6,15 @@
         <v-list-item
           :key="item.conversationId"
           @click="showConversation(item.conversationId)"
+          :to="{
+            name: 'chat',
+            params: {
+              conversationId: item.conversationId,
+            },
+          }"
         >
           <v-list-item-avatar>
-            <img src="https://cdn.vuetifyjs.com/images/lists/1.jpg" />
+            <v-img :src="item.avatarUrl" />
           </v-list-item-avatar>
           <v-list-item-content class="text-left align-self-start">
             <v-list-item-title v-html="item.conversationName">
@@ -28,6 +34,7 @@ import ChatService from "@/services/ChatService";
 export default {
   data: () => ({
     items: [],
+    avatars: [],
   }),
   created() {
     this.loadConversations();
@@ -44,13 +51,27 @@ export default {
       this.$emit("openConver", convId);
     },
     loadConversations() {
-      ChatService.getAllConversations().then((e) => {
+      ChatService.getAllConversations().then((res) => {
         // console.log("conversations:", e.data.conversations);
-        var convers = e.data.conversations;
+        var convers = res.data.conversations;
+        this.avatars = res.data.avatarUrls;
 
-        convers.sort((a, b) => b.lastMessageTime - a.lastMessageTime);
+        var mappedAvatar = convers.map((e) => {
+          var userAva = this.avatars.find((f) => f.userid == e.partnerId);
 
-        this.items = convers;
+          if (userAva != null) {
+            e.avatarUrl = userAva.avatarUrl;
+          } else {
+            e.avatarUrl = "https://i.pravatar.cc/64";
+          }
+
+          return e;
+        });
+
+        mappedAvatar.sort((a, b) => b.lastMessageTime - a.lastMessageTime);
+        //console.log(mappedAvatar);
+
+        this.items = mappedAvatar;
       });
     },
   },

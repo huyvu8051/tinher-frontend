@@ -9,7 +9,7 @@
           class="imgg"
         >
           <v-card max-width="250px" >
-            <h-image-wrapper :src="item.url" height="400px" />
+            <h-image-wrapper :src="item.url" height="350px" />
 
             <v-card-actions>
               <v-spacer />

@@ -9,40 +9,54 @@ const router = new Router({
   mode: "history",
   routes: [
     {
-      path: '/',
-      name: 'slide',
-      component: () => import("@/components/Slide")
+      path: '/app/',
+      component: () => import("@/components/UserInterface"),
+      children: [
+        {
+          path: 'slide',
+          name: 'slide',
+          component: () => import("@/components/Slide")
+        },
+
+        {
+          path: "profile",
+          name: "setting.profile",
+          component: () => import("@/components/setting/Profile"),
+        },
+        {
+          path: "image",
+          name: "setting.image",
+          component: () => import("@/components/setting/ManageProfileImage"),
+        },
+        {
+          path: "conversations",
+          name: "conversations",
+          component: () => import("@/components/chat/Conversations"),
+        },
+        {
+          path: "chatMessages",
+          name: "chatMessages",
+          component: () => import("@/components/chat/ChatMessages"),
+        },
+        {
+          path: "chat/:conversationId",
+          name: "chat",
+          component: () => import("@/components/chat/Chat"),
+        },
+      ]
     },
     {
-      path: '/login',
-      name: 'login',
-      component: () => import("@/components/Login")
+      path: '/guest/',
+      component: () => import("@/components/GuestInterface"),
+      children: [
+        {
+          path: 'login',
+          name: 'login',
+          component: () => import("@/components/Login")
+        },
+      ]
     },
-    {
-      path: "/profile",
-      name: "setting.profile",
-      component: () => import("@/components/setting/Profile"),
-    },
-    {
-      path: "/image",
-      name: "setting.image",
-      component: () => import("@/components/setting/ManageProfileImage"),
-    },
-    {
-      path: "/conversations",
-      name: "conversations",
-      component: () => import("@/components/chat/Conversations"),
-    },
-    {
-      path: "/chatMessages",
-      name: "chatMessages",
-      component: () => import("@/components/chat/ChatMessages"),
-    },
-    {
-      path: "/chat",
-      name: "chat",
-      component: () => import("@/components/chat/Chat"),
-    }
+
   ]
 })
 

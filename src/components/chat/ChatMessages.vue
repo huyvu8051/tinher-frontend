@@ -3,7 +3,7 @@
     <div>
       <v-list-item>
         <v-list-item-avatar>
-          <img src="https://cdn.vuetifyjs.com/images/lists/1.jpg" />
+          <v-img :src="conversation.avatarUrl" />
         </v-list-item-avatar>
         <v-list-item-content class="text-left align-self-start">
           <v-list-item-title v-html="conversation.conversationName">
@@ -102,7 +102,7 @@ export default {
     conversation: null,
     currScrollHeigh: 0,
     avatars: [],
-    pageSize: 8
+    pageSize: 8,
   }),
 
   updated() {
@@ -118,7 +118,6 @@ export default {
     }
   },
   methods: {
-   
     changeConversation(converId) {
       this.converId = converId;
       this.message = "";
@@ -145,8 +144,13 @@ export default {
     },
     async loadChatMessageByConvId(convId, page) {
       this.converId = convId;
-      var response = await ChatService.getAllChatMessage(convId, page, this.pageSize);
+      var response = await ChatService.getAllChatMessage(
+        convId,
+        page,
+        this.pageSize
+      );
 
+console.log(response.data);
       this.avatars = response.data.avatarUrls;
 
       var mappedAvatar = response.data.chatMessages.map((e) => {
@@ -166,6 +170,15 @@ export default {
       });
 
       this.conversation = response.data.conversation;
+     
+      var userAva2 = this.avatars.find(
+        (f) => f.userid == this.conversation.partnerId
+      );
+      if (userAva2 != null) {
+        this.conversation.avatarUrl = userAva2.avatarUrl;
+      } else {
+        this.conversation.avatarUrl = "https://i.pravatar.cc/64";
+      }
     },
     sendMessage() {
       var now = new Date().getTime();
@@ -204,10 +217,10 @@ export default {
         console.log("get next page");
       }
     },
-    getNextPage(){
+    getNextPage() {
       var currPage = Math.round(this.messages.length / this.pageSize);
       return currPage + 1;
-    }
+    },
   },
 };
 </script>

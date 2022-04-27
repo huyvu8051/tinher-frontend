@@ -1,5 +1,6 @@
 <template>
-  <v-form ref="form">
+  <div>
+    <b>PROFILE</b>
     <ManageProfileImage :images="userSetting.images" />
     <v-textarea
       name="input-7-1"
@@ -30,22 +31,27 @@
       label="Gender"
     ></v-select>
 
-    <p>{{ userSetting.distancePreference }}</p>
+    <p> Distance preference {{ userSetting.distancePreference }} km</p>
 
     <v-slider
       v-model="userSetting.distancePreference"
       hint="Distance preference"
       :max="161"
-      :min="0"
+      :min="5"
     ></v-slider>
 
-    <p>{{ userSetting.agePreference }}</p>
+    <p>
+      Age preference from {{ userSetting.agePreference[0] }} to
+      {{ userSetting.agePreference[1] }}
+    </p>
     <v-range-slider
       v-model="userSetting.agePreference"
       hint="Age preference"
       :max="100"
       :min="18"
     ></v-range-slider>
+
+   
 
     <p>Looking for {{ userSetting.lookingFor }}</p>
     <div>
@@ -58,7 +64,6 @@
       >
       </v-checkbox>
     </div>
-
     <v-text-field
       v-model="userSetting.yearOfBirth"
       type="number"
@@ -71,9 +76,9 @@
 
     <!-- cc -->
 
-    <v-btn @click="backToSlide">back to slide</v-btn>
-    <v-btn @click="save">submit</v-btn>
-  </v-form>
+    <v-btn @click="backToSlide" color="warning">back to slide</v-btn>
+    <v-btn @click="save" color="primary">submit</v-btn>
+  </div>
 </template>
 <script>
 import SettingService from "@/services/SettingService";
@@ -94,7 +99,7 @@ export default {
     agePreference: [20, 24],
     lookingFor: [],
     images: [
-     /* "https://i.ibb.co/n8pd74P/277363698-302867688656780-4234363800179639193-n.jpg",
+      /* "https://i.ibb.co/n8pd74P/277363698-302867688656780-4234363800179639193-n.jpg",
       "https://i.ibb.co/0CBk0ZB/277097823-302762431943013-4196997419560558980-n.jpg",
       "https://i.ibb.co/WVbPpxD/277349336-2160720654077479-5453383725139124940-n.jpg",
       "https://i.ibb.co/CHtj7rd/277103649-133227935933331-3069637674950538478-n.jpg",
@@ -102,7 +107,9 @@ export default {
       "https://i.ibb.co/tLk8bk5/277461786-139278638626236-3033352952824009429-n.jpg",*/
     ],
     distancePreference: 20,
-    userSetting: {},
+    userSetting: {
+      agePreference: []
+    },
     picker: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
       .toISOString()
       .substr(0, 10),
@@ -130,13 +137,13 @@ export default {
       this.userSetting.lat = this.$store.state.geoLocation.lat;
       this.userSetting.lon = this.$store.state.geoLocation.lon;
       SettingService.save(this.userSetting)
-        .then(e=>{
-          console.log(e)
-          this.$success("Save setting success")
+        .then((e) => {
+          console.log(e);
+          this.$success("Save setting success");
         })
-        .catch(e=>{
-          console.log(e)
-          this.$error("Save setting error")
+        .catch((e) => {
+          console.log(e);
+          this.$error("Save setting error");
         });
     },
     allowedDates: (val) => parseInt(val.split("-")[2], 10) % 2 === 0,
