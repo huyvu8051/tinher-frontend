@@ -3,9 +3,7 @@
     <Navigation />
     <Header />
     <v-main>
-      <h-flex-layout>
-        <router-view :socket="socket" />
-      </h-flex-layout>
+      <router-view :socket="socket" />
     </v-main>
 
     <Nofication />

@@ -44,8 +44,8 @@ const router = new Router({
           component: () => import("@/components/chat/Chat"),
         },
         {
-          path: "chatv2/:conversationId",
-          name: "chat",
+          path: "chat2",
+          name: "chat2",
           component: () => import("@/components/chat/ChatV2"),
         },
       ]
