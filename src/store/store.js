@@ -12,12 +12,14 @@ export default new Vuex.Store({
     state: {
         loginData: {},
         jwt: "",
-        geoLocation: {}
+        geoLocation: {},
+        socket:{}
 
 
 
     },
     mutations: {
+
         saveLoginData(state, data) {
             state.loginData = data;
             state.jwt = data.jwt;

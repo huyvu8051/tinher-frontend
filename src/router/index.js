@@ -43,14 +43,19 @@ const router = new Router({
           name: "chat",
           component: () => import("@/components/chat/Chat"),
         },
+        {
+          path: "chatv2/:conversationId",
+          name: "chat",
+          component: () => import("@/components/chat/ChatV2"),
+        },
       ]
     },
     {
-      path: '/guest/',
+      path: '/',
       component: () => import("@/components/GuestInterface"),
       children: [
         {
-          path: 'login',
+          path: '',
           name: 'login',
           component: () => import("@/components/Login")
         },

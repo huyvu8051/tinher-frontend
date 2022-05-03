@@ -1,7 +1,7 @@
 <template>
   <v-responsive class="overflow-y-auto v-responsive-conver" height="600">
     <v-list two-line>
-      <template v-for="(item, index) in items">
+      <template v-for="(item, index) in conversations">
         <v-divider :key="index" />
         <v-list-item
           :key="item.conversationId"
@@ -14,13 +14,14 @@
           }"
         >
           <v-list-item-avatar>
-            <v-img :src="item.avatarUrl" />
+            <v-img :src="item.displayedUser.avatar" />
           </v-list-item-avatar>
           <v-list-item-content class="text-left align-self-start">
-            <v-list-item-title v-html="item.conversationName">
+            <v-list-item-title v-html="item.displayedUser.fullName">
             </v-list-item-title>
             <v-list-item-subtitle
-              v-html="item.lastMessage.author + ': ' + item.lastMessage.text"
+              :class="{ isntSeen: isNotSeen(item) }"
+              v-html="item.lastMessage.displayedUser.fullName + ': ' + item.lastMessage.text"
             >
             </v-list-item-subtitle>
           </v-list-item-content>
@@ -31,13 +32,23 @@
 </template>
 <script>
 import ChatService from "@/services/ChatService";
+
+import MapperService from "@/services/MapperService";
+
 export default {
   data: () => ({
-    items: [],
+    conversations: [],
     avatars: [],
   }),
   created() {
     this.loadConversations();
+    this.$eventBus.$on("loadConversations", () => {
+      this.loadConversations();
+      console.log("loadConversations");
+    });
+  },
+  beforeDestroy() {
+    this.$eventBus.$off("loadConversations");
   },
   updated() {
     var container = document.querySelector(".v-responsive-conver");
@@ -47,33 +58,40 @@ export default {
     }
   },
   methods: {
+    isNotSeen(item) {
+      if (this.$store.state.loginData.username == item.lastMessage.displayedUser.username) {
+        return false;
+      }
+      return true;
+    },
     showConversation(convId) {
       this.$emit("openConver", convId);
     },
     loadConversations() {
       ChatService.getAllConversations().then((res) => {
-        // console.log("conversations:", e.data.conversations);
-        var convers = res.data.conversations;
-        this.avatars = res.data.avatarUrls;
+        //console.log("conversations res", res.data);
 
-        var mappedAvatar = convers.map((e) => {
-          var userAva = this.avatars.find((f) => f.userid == e.partnerId);
+        var lastMessages = res.data.lastMessages;
 
-          if (userAva != null) {
-            e.avatarUrl = userAva.avatarUrl;
-          } else {
-            e.avatarUrl = "https://i.pravatar.cc/64";
-          }
+        var users = res.data.users;
 
-          return e;
-        });
+        var conversations = res.data.conversations;
+        MapperService.mapChatMessageToDisplayedUser(lastMessages, users);
+        MapperService.mapConversationToDisplayedUser(conversations, users);
+        MapperService.mapConversationToLastMessage(conversations, lastMessages);
 
-        mappedAvatar.sort((a, b) => b.lastMessageTime - a.lastMessageTime);
-        //console.log(mappedAvatar);
+        this.conversations = conversations.sort((a,b)=>b.lastMessageTime - a.lastMessageTime)
 
-        this.items = mappedAvatar;
+
+        
       });
     },
   },
 };
 </script>
+
+<style scoped>
+.isntSeen {
+  font-weight: bold;
+}
+</style>

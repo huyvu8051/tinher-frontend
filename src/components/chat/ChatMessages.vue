@@ -1,24 +1,7 @@
 <template>
   <div v-if="conversation != null">
-    <div>
-      <v-list-item>
-        <v-list-item-avatar>
-          <v-img :src="conversation.avatarUrl" />
-        </v-list-item-avatar>
-        <v-list-item-content class="text-left align-self-start">
-          <v-list-item-title v-html="conversation.conversationName">
-          </v-list-item-title>
-          <v-list-item-subtitle
-            v-html="
-              conversation.lastMessage.author +
-              ': ' +
-              conversation.lastMessage.text
-            "
-          >
-          </v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-    </div>
+    <CMHeader :conversation="conversation" />
+
     <v-responsive
       class="overflow-y-auto v-responsive-chatMess"
       height="800px"
@@ -33,9 +16,18 @@
         >
           <v-container fill-height>
             <v-layout align-center justify-center>
-              <v-avatar>
-                <v-img :src="item.avatarUrl" />
-              </v-avatar>
+              <v-tooltip left>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-avatar>
+                    <v-img
+                      :src="item.displayedUser.avatar"
+                      v-bind="attrs"
+                      v-on="on"
+                    />
+                  </v-avatar>
+                </template>
+                <span>{{ item.displayedUser.fullName }}</span>
+              </v-tooltip>
             </v-layout>
           </v-container>
         </v-col>
@@ -46,9 +38,21 @@
           <v-container fill-height>
             <v-layout align-center>
               <v-card class="elevation-2" color="green" dark>
-                <v-card-text class="text-left align-self-start">
-                  {{ item.text }}
-                </v-card-text>
+                <v-tooltip right>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-card-text
+                      v-bind="attrs"
+                      v-on="on"
+                      class="text-left align-self-start"
+                    >
+                      {{ item.text }}
+                    </v-card-text>
+                  </template>
+                  <span
+                    >sent at
+                    {{ new Date(item.lastMessageTime).toLocaleString() }}</span
+                  >
+                </v-tooltip>
               </v-card>
             </v-layout>
           </v-container>
@@ -94,14 +98,20 @@
 </template>
 <script>
 import ChatService from "@/services/ChatService";
+import MapperService from "@/services/MapperService";
+
+import CMHeader from "@/components/chat/CMHeader";
 export default {
+  components: {
+    CMHeader,
+  },
   data: () => ({
     converId: "",
     message: "",
     messages: [],
     conversation: null,
     currScrollHeigh: 0,
-    avatars: [],
+    users: [],
     pageSize: 8,
   }),
 
@@ -116,6 +126,15 @@ export default {
     if (this.converId != "") {
       ChatService.getAllChatMessage(this.converId);
     }
+
+    this.$eventBus.$on("receiveNewMessage", (msg) => {
+      
+      this.receiveNewMessage(msg);
+    });
+  },
+  beforeDestroy() {
+    this.$eventBus.$off("receiveNewMessage");
+  
   },
   methods: {
     changeConversation(converId) {
@@ -124,20 +143,15 @@ export default {
       this.messages = [];
       this.conversation = null;
       (this.currMessagePage = 1), (this.currScrollHeigh = 0);
-      this.avatars = [];
+      this.users = [];
       this.loadChatMessageByConvId(this.converId, 1);
     },
     receiveNewMessage(msg) {
-      var e = this.messages.find((e) => e.sentAt === msg.sentAt);
+      var e = this.messages.find((e) => e.lastMessageTime === msg.lastMessageTime);
+      
+      if (e === null || e === undefined) {
 
-      if (e == null) {
-        var userAva = this.avatars.find((f) => f.userid == msg.authorId);
-
-        if (userAva != null) {
-          msg.avatarUrl = userAva.avatarUrl;
-        } else {
-          msg.avatarUrl = "https://i.pravatar.cc/64";
-        }
+        MapperService.mapChatMessageToDisplayedUser([msg], this.users);
         this.currScrollHeigh = 0;
         this.messages.push(msg);
       }
@@ -150,35 +164,22 @@ export default {
         this.pageSize
       );
 
-console.log(response.data);
-      this.avatars = response.data.avatarUrls;
-
-      var mappedAvatar = response.data.chatMessages.map((e) => {
-        var userAva = this.avatars.find((f) => f.userid == e.authorId);
-
-        if (userAva != null) {
-          e.avatarUrl = userAva.avatarUrl;
-        } else {
-          e.avatarUrl = "https://i.pravatar.cc/64";
-        }
-
-        return e;
-      });
-
-      mappedAvatar.forEach((element) => {
-        this.messages.unshift(element);
-      });
+      this.users = response.data.users;
 
       this.conversation = response.data.conversation;
-     
-      var userAva2 = this.avatars.find(
-        (f) => f.userid == this.conversation.partnerId
+
+      MapperService.mapConversationToDisplayedUser(
+        [this.conversation],
+        this.users
       );
-      if (userAva2 != null) {
-        this.conversation.avatarUrl = userAva2.avatarUrl;
-      } else {
-        this.conversation.avatarUrl = "https://i.pravatar.cc/64";
-      }
+
+      var messages = response.data.chatMessages;
+
+      MapperService.mapChatMessageToDisplayedUser(messages, this.users);
+
+      messages.forEach((element) => {
+        this.messages.unshift(element);
+      });
     },
     sendMessage() {
       var now = new Date().getTime();

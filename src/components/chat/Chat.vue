@@ -12,7 +12,6 @@
 <script>
 import Conversations from "@/components/chat/Conversations";
 import ChatMessages from "@/components/chat/ChatMessages";
-import io from "socket.io-client";
 export default {
   components: {
     Conversations,
@@ -21,45 +20,20 @@ export default {
   data() {
     return {
       converId: "",
-      socket: {},
     };
   },
   created() {
-    this.socket = this.connectSocket();
+
   },
   beforeDestroy() {
-      this.socket.off("connected")
-      this.socket.off("registerSuccess")
-      this.socket.off("receiveMessage")
+  
   },
   methods: {
     openConver(convId) {
       this.converId = convId;
       this.$refs.chatMess.changeConversation(this.converId);
     },
-    connectSocket() {
-      var socket = io.connect("http://localhost:8082");
-      socket
-        .on("connected", () => null)
-        .emit("clientConnectRequest", {
-          token: "bearer " + this.$store.state.loginData.jwt,
-        })
-        .on("registerSuccess", (data) => {
-          console.log("connect success!", data);
-        });
-
-        socket.on("receiveMessage",(converId, message)=>{
-          
-             this.$refs.convers.loadConversations();
-
-            if(converId == this.converId){
-              this.$refs.chatMess.receiveNewMessage(message);
-            }
-
-        })
-
-      return socket;
-    },
+ 
   },
 };
 </script>

@@ -4,7 +4,7 @@
     <Header />
     <v-main>
       <h-flex-layout>
-        <router-view />
+        <router-view :socket="socket" />
       </h-flex-layout>
     </v-main>
 
@@ -21,6 +21,9 @@ import Header from "@/components/Header";
 import Navigation from "@/components/Navigation";
 
 import GeoService from "@/services/GeoService";
+
+import io from "socket.io-client";
+
 export default {
   name: "App",
   components: {
@@ -29,8 +32,43 @@ export default {
     Navigation,
     Header,
   },
+  data() {
+    return {
+      socket: {},
+    };
+  },
   created() {
     GeoService.getLocation();
+    this.socket = this.connectSocket();
+  },
+  beforeDestroy() {
+    this.socket.off("connected");
+    this.socket.off("registerSuccess");
+    this.socket.off("receiveMessage");
+  },
+  methods: {
+    connectSocket() {
+      var socket = io.connect("http://localhost:8082");
+      socket
+        .on("connected", () => null)
+        .emit("clientConnectRequest", {
+          token: "bearer " + this.$store.state.loginData.jwt,
+        })
+        .on("registerSuccess", (data) => {
+          console.log("connect success!", data);
+        });
+
+      socket.on("receiveMessage", (message) => {
+        this.$eventBus.$emit("loadConversations");
+        this.$eventBus.$emit("receiveNewMessage", message);
+      });
+
+      socket.on("seenMessage", () => {
+        this.$eventBus.$emit("loadConversations");
+      });
+
+      return socket;
+    },
   },
 };
 </script>
