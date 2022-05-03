@@ -1,62 +1,47 @@
 <template>
-  <section class="chat">
-      <div class="header-chat">
-        <i class="icon fa fa-user-o" aria-hidden="true"></i>
-        <p class="name">Megan Leib</p>
-        <i class="icon clickable fa fa-ellipsis-h right" aria-hidden="true"></i>
-      </div>
-      <div class="messages-chat">
-        <div class="message">
-          <div
-            class="photo"
-            style="
-              background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);
-            "
-          >
-            <div class="online"></div>
-          </div>
-          <p class="text">Hi, how are you ?</p>
+  <section class="chat" v-if="conversation != null">
+    <!-- HEADER -->
+    <div class="header-chat">
+      <v-avatar class="ml-6">
+        <img :src="conversation.displayedUser.avatar" alt="John" />
+      </v-avatar>
+
+      <p class="name">{{ conversation.displayedUser.fullName }}</p>
+      <i class="icon clickable fa fa-ellipsis-h right" aria-hidden="true"></i>
+    </div>
+
+    <!-- CM -->
+
+    <v-responsive
+      class="v-responsive-chatMess messages-chat"
+      v-scroll.self="onScroll"
+    >
+      <div class="message" v-for="(item, key) in messages" :key="key">
+        <p v-if="!isOwnMessage(item)" class="text">{{ item.text }}</p>
+        <div v-else class="response">
+          <p class="text">{{ item.text }}</p>
         </div>
-        <div class="message text-only">
-          <p class="text">
-            What are you doing tonight ? Want to go take a drink ?
-          </p>
-        </div>
-        <p class="time">14h58</p>
-        <div class="message text-only">
-          <div class="response">
-            <p class="text">Hey Megan ! It's been a while 😃</p>
-          </div>
-        </div>
-        <div class="message text-only">
-          <div class="response">
-            <p class="text">When can we meet ?</p>
-          </div>
-        </div>
-        <p class="response-time time">15h04</p>
-        <div class="message">
-          <div
-            class="photo"
-            style="
-              background-image: url(https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80);
-            "
-          >
-            <div class="online"></div>
-          </div>
-          <p class="text">9 pm at the bar if possible 😳</p>
-        </div>
-        <p class="time">15h09</p>
       </div>
 
-      <v-text-field
-        class="footer-chat"
-        append-outer-icon="mdi-send"
-        clear-icon="mdi-close-circle"
-        clearable
-        label="Message"
-        type="text"
-      />
-    </section>
+      <!-- <p class="time">14h58</p> -->
+
+      <!-- <p class="response-time time">15h04</p> -->
+    </v-responsive>
+
+    <!-- Text field -->
+
+    <v-text-field
+      class="footer-chat"
+      v-model="message"
+      append-outer-icon="mdi-send"
+      clear-icon="mdi-close-circle"
+      clearable
+      label="Message"
+      type="text"
+      @click:append-outer="sendMessage"
+      v-on:keyup.enter.exact="sendMessage"
+    ></v-text-field>
+  </section>
 </template>
 
 
@@ -70,14 +55,23 @@ export default {
     CMHeader,
   },
   data: () => ({
-    converId: "",
     message: "",
     messages: [],
     conversation: null,
     currScrollHeigh: 0,
-    users: [],
-    pageSize: 8,
+    pageSize: 14,
   }),
+
+  watch: {
+    $route(to, from) {
+      this.conversation = null;
+      this.messages = [];
+      this.message = "";
+      this.currScrollHeigh = 0;
+
+      this.loadChatMessageByConvId(1);
+    },
+  },
 
   updated() {
     var container = document.querySelector(".v-responsive-chatMess");
@@ -87,43 +81,41 @@ export default {
     }
   },
   created() {
-    if (this.converId != "") {
-      ChatService.getAllChatMessage(this.converId);
-    }
-
-    this.$eventBus.$on("receiveNewMessage", (msg) => {
-      
-      this.receiveNewMessage(msg);
-    });
+    
+    this.loadChatMessageByConvId(1);
   },
   beforeDestroy() {
-    this.$eventBus.$off("receiveNewMessage");
-  
   },
   methods: {
-    changeConversation(converId) {
-      this.converId = converId;
-      this.message = "";
-      this.messages = [];
-      this.conversation = null;
-      (this.currMessagePage = 1), (this.currScrollHeigh = 0);
-      this.users = [];
-      this.loadChatMessageByConvId(this.converId, 1);
+    isOwnMessage(item) {
+      return item.authorId === this.$store.state.loginData.username;
     },
     receiveNewMessage(msg) {
-      var e = this.messages.find((e) => e.lastMessageTime === msg.lastMessageTime);
       
-      if (e === null || e === undefined) {
+      if(msg.key.conversationId !== this.$route.params.conversationId){
+        return;
+      }
 
+      var e = this.messages.find(
+        (e) => e.key.lastMessageTime === msg.key.lastMessageTime
+      );
+
+    
+
+      if (e === null || e === undefined) {
         MapperService.mapChatMessageToDisplayedUser([msg], this.users);
         this.currScrollHeigh = 0;
         this.messages.push(msg);
       }
     },
-    async loadChatMessageByConvId(convId, page) {
-      this.converId = convId;
+    async loadChatMessageByConvId(page) {
+      var converId = this.$route.params.conversationId;
+      if (converId === "#") {
+        return;
+      }
+
       var response = await ChatService.getAllChatMessage(
-        convId,
+        converId,
         page,
         this.pageSize
       );
@@ -144,12 +136,14 @@ export default {
       messages.forEach((element) => {
         this.messages.unshift(element);
       });
+
+      // console.log(this.messages);
     },
     sendMessage() {
       var now = new Date().getTime();
 
       ChatService.sendMessage({
-        conversationId: this.converId,
+        conversationId: this.$route.params.conversationId,
         chatMessage: this.message,
         sentAt: now,
       })
@@ -161,8 +155,10 @@ export default {
       this.messages.push({
         author: this.$store.state.loginData.fullName,
         authorId: this.$store.state.loginData.username,
-        conversationId: this.converId,
-        sentAt: now,
+        key: {
+          conversationId: this.$route.params.conversationId,
+          lastMessageTime: now,
+        },
         text: this.message,
       });
       this.message = "";
@@ -176,10 +172,7 @@ export default {
         if (container != null) {
           this.currScrollHeigh = container.scrollHeight;
         }
-
-        this.loadChatMessageByConvId(this.converId, this.getNextPage());
-
-        console.log("get next page");
+        this.loadChatMessageByConvId(this.getNextPage());
       }
     },
     getNextPage() {
@@ -191,7 +184,6 @@ export default {
 </script>
 
 <style lang="css" scoped>
-
 .online {
   position: relative;
   top: 30px;
@@ -223,7 +215,8 @@ export default {
 
 .chat .header-chat .name {
   margin: 0 0 0 20px;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
+  font-weight: bold;
   font-family: "Montserrat", sans-serif;
   font-size: 13pt;
   color: #515151;
@@ -235,7 +228,13 @@ export default {
 }
 
 .chat .messages-chat {
-  padding: 25px 35px;
+  position: absolute;
+  top: 100px;
+  bottom: 100px;
+  width: 74%;
+
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .chat .messages-chat .message {
@@ -290,7 +289,7 @@ export default {
 }
 
 .footer-chat {
-  width: calc(65% - 66px);
+  width: calc(72%);
   height: 80px;
   display: flex;
   align-items: center;
@@ -299,37 +298,6 @@ export default {
   background-color: transparent;
   border-top: 2px solid #eee;
 }
-
-.chat .footer-chat .icon {
-  margin-left: 30px;
-  color: #c0c0c0;
-  font-size: 14pt;
-}
-
-.chat .footer-chat .send {
-  color: #fff;
-  background-color: #4f6ebd;
-  position: absolute;
-  right: 50px;
-  padding: 12px 12px 12px 12px;
-  border-radius: 50px;
-  font-size: 14pt;
-}
-
-.chat .footer-chat .name {
-  margin: 0 0 0 20px;
-  text-transform: uppercase;
-  font-family: "Montserrat", sans-serif;
-  font-size: 13pt;
-  color: #515151;
-}
-
-.chat .footer-chat .right {
-  position: absolute;
-  right: 40px;
-}
-
-
 
 .clickable {
   cursor: pointer;

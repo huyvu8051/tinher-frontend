@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <h-flex-layout>
     <b>PROFILE</b>
     <ManageProfileImage :images="userSetting.images" />
     <v-textarea
@@ -78,7 +78,7 @@
 
     <v-btn @click="backToSlide" color="warning">back to slide</v-btn>
     <v-btn @click="save" color="primary">submit</v-btn>
-  </div>
+ </h-flex-layout>
 </template>
 <script>
 import SettingService from "@/services/SettingService";

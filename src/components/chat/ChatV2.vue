@@ -1,9 +1,9 @@
 <template>
   <v-row>
-    <v-col cols="4">
+    <v-col cols="3">
       <Conversation2 @openConver="openConver" ref="convers" />
     </v-col>
-    <v-col cols="8">
+    <v-col cols="9">
       <ChatMessage2 :converId="converId" ref="chatMess" />
     </v-col>
   </v-row>
@@ -17,20 +17,28 @@ export default {
     Conversation2,
     ChatMessage2,
   },
-   data() {
+  data() {
     return {
       converId: "",
     };
+  },
+  created(){
+    this.$eventBus.$on("receiveNewMessage", (msg) => {
+      this.$refs.chatMess.receiveNewMessage(msg);
+    });
+  },
+  beforeDestroy(){
+    this.$eventBus.$off("receiveNewMessage");
   },
   methods: {
     openConver(convId) {
       this.converId = convId;
       this.$refs.chatMess.changeConversation(this.converId);
     },
- 
   },
 };
 </script>
 
 <style lang="css" scoped>
+
 </style>

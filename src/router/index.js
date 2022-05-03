@@ -40,12 +40,12 @@ const router = new Router({
         },
         {
           path: "chat/:conversationId",
-          name: "chat",
+          name: "chat2",
           component: () => import("@/components/chat/Chat"),
         },
         {
-          path: "chat2",
-          name: "chat2",
+          path: "chat2/:conversationId",
+          name: "chat",
           component: () => import("@/components/chat/ChatV2"),
         },
       ]

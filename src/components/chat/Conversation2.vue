@@ -1,19 +1,13 @@
 <template>
-  <section class="discussions">
-    <div class="discussion search">
-      <v-text-field outlined append-icon="search"></v-text-field>
-    </div>
+  <v-responsive class="discussions">
     <div
-      class="discussion message-active"
+      class="discussion"
       v-for="(item, index) in conversations"
-      :key="index"
+      :key="index + Math.random()"
       @click="showConversation(item.conversationId)"
-      :to="{
-        name: 'chat',
-        params: {
-          conversationId: item.conversationId,
-        },
-      }"
+      :style="{
+        'background-color': isRouted(item)
+        }"
     >
       <div
         class="photo"
@@ -33,13 +27,13 @@
       </div>
       <div class="timer">{{ getHour(item.lastMessageTime) }}</div>
     </div>
-  </section>
+  </v-responsive>
 </template>
 <script>
 import ChatService from "@/services/ChatService";
 
 import MapperService from "@/services/MapperService";
-
+import Moment from "moment";
 export default {
   data: () => ({
     conversations: [],
@@ -64,8 +58,19 @@ export default {
   },
   computed: {},
   methods: {
+    isRouted(item){
+      
+      if(item.conversationId == this.$route.params.conversationId){
+        return "#dcdcdc"
+      }
+      return "#fafafa"
+    },
+    resizeWindowEventHandler(e) {
+      console.log(this.$refs.convs.clientHeight);
+      //this.hei = this.$refs.convs.clientHeight;
+    },
     getHour(long) {
-      return "11h20";
+      return Moment(long).format("h:mm a");
     },
     isNotSeen(item) {
       if (
@@ -77,7 +82,14 @@ export default {
       return true;
     },
     showConversation(convId) {
-      this.$emit("openConver", convId);
+      this.$router
+        .push({
+          name: "chat",
+          params: {
+            conversationId: convId,
+          },
+        })
+        .catch((e) => e);
     },
     loadConversations() {
       ChatService.getAllConversations().then((res) => {
@@ -112,12 +124,14 @@ export default {
 /* === CONVERSATIONS === */
 
 .discussions {
-  width: 100%;
-  height: auto;
-  box-shadow: 0px 8px 10px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  background-color: #87a3ec;
+  width: 25%;
+  position: absolute;
+  bottom: 10px;
+  top: 0px;
+  overflow-x: hidden;
+  overflow-y: auto;
   display: inline-block;
+  border-right: solid 1px #e0e0e0;
 }
 
 .discussions .discussion {
@@ -125,17 +139,12 @@ export default {
   height: 90px;
   background-color: #fafafa;
   border-bottom: solid 1px #e0e0e0;
+
   display: flex;
   align-items: center;
   cursor: pointer;
 }
 
-.discussions .search {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #e0e0e0;
-}
 
 .discussions .message-active {
   width: 98.5%;
@@ -170,7 +179,7 @@ export default {
 
 .desc-contact {
   height: 43px;
-  width: 50%;
+  width: 70%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -191,7 +200,6 @@ export default {
 }
 
 .timer {
-  margin-left: 15%;
   font-family: "Open Sans", sans-serif;
   font-size: 11px;
   padding: 3px 8px;
@@ -199,6 +207,7 @@ export default {
   background-color: #fff;
   border: 1px solid #e5e5e5;
   border-radius: 15px;
+  text-align: center;
 }
 
 .clickable {

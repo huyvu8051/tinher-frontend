@@ -21,7 +21,11 @@
             </v-list-item-title>
             <v-list-item-subtitle
               :class="{ isntSeen: isNotSeen(item) }"
-              v-html="item.lastMessage.displayedUser.fullName + ': ' + item.lastMessage.text"
+              v-html="
+                item.lastMessage.displayedUser.fullName +
+                ': ' +
+                item.lastMessage.text
+              "
             >
             </v-list-item-subtitle>
           </v-list-item-content>
@@ -59,7 +63,10 @@ export default {
   },
   methods: {
     isNotSeen(item) {
-      if (this.$store.state.loginData.username == item.lastMessage.displayedUser.username) {
+      if (
+        this.$store.state.loginData.username ==
+        item.lastMessage.displayedUser.username
+      ) {
         return false;
       }
       return true;
@@ -80,10 +87,9 @@ export default {
         MapperService.mapConversationToDisplayedUser(conversations, users);
         MapperService.mapConversationToLastMessage(conversations, lastMessages);
 
-        this.conversations = conversations.sort((a,b)=>b.lastMessageTime - a.lastMessageTime)
-
-
-        
+        this.conversations = conversations.sort(
+          (a, b) => b.lastMessageTime - a.lastMessageTime
+        );
       });
     },
   },
