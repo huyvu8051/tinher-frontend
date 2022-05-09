@@ -6,8 +6,8 @@
       :key="index + Math.random()"
       @click="showConversation(item.conversationId)"
       :style="{
-        'background-color': isRouted(item)
-        }"
+        'background-color': isRouted(item),
+      }"
     >
       <div
         class="photo"
@@ -15,7 +15,7 @@
       >
         <div class="online"></div>
       </div>
-      <div class="desc-contact">
+      <div class="desc-contact" :class="{ isntSeen: item.isNotSeen }">
         <p class="name">{{ item.displayedUser.fullName }}</p>
         <p class="message">
           {{
@@ -37,17 +37,19 @@ import Moment from "moment";
 export default {
   data: () => ({
     conversations: [],
-    avatars: [],
+    users: [],
   }),
   created() {
     this.loadConversations();
+
     this.$eventBus.$on("loadConversations", () => {
       this.loadConversations();
-      console.log("loadConversations");
     });
+   
   },
   beforeDestroy() {
     this.$eventBus.$off("loadConversations");
+  
   },
   updated() {
     var container = document.querySelector(".v-responsive-conver");
@@ -58,30 +60,30 @@ export default {
   },
   computed: {},
   methods: {
-    isRouted(item){
-      
-      if(item.conversationId == this.$route.params.conversationId){
-        return "#dcdcdc"
+   
+    isRouted(item) {
+      if (item.conversationId == this.$route.params.conversationId) {
+        return "#dcdcdc";
       }
-      return "#fafafa"
+      return "#fafafa";
     },
-    resizeWindowEventHandler(e) {
-      console.log(this.$refs.convs.clientHeight);
-      //this.hei = this.$refs.convs.clientHeight;
-    },
+   
     getHour(long) {
       return Moment(long).format("h:mm a");
     },
-    isNotSeen(item) {
-      if (
-        this.$store.state.loginData.username ==
-        item.lastMessage.displayedUser.username
-      ) {
+    isNotSeen(conversation) {
+      var seener = conversation.lastMessage.seeners.find(
+        (e) => e.username === this.$store.state.loginData.username
+      );
+      if (seener) {
         return false;
       }
       return true;
     },
     showConversation(convId) {
+      var conver = this.conversations.find((e) => e.conversationId == convId);
+      conver.isNotSeen = false;
+
       this.$router
         .push({
           name: "chat",
@@ -99,14 +101,21 @@ export default {
 
         var users = res.data.users;
 
+        this.users = users;
+
         var conversations = res.data.conversations;
         MapperService.mapChatMessageToDisplayedUser(lastMessages, users);
         MapperService.mapConversationToDisplayedUser(conversations, users);
         MapperService.mapConversationToLastMessage(conversations, lastMessages);
 
+        conversations.forEach((e) => {
+          e.isNotSeen = this.isNotSeen(e);
+        });
+
         this.conversations = conversations.sort(
           (a, b) => b.lastMessageTime - a.lastMessageTime
         );
+        console.log(this.conversations);
       });
     },
   },
@@ -144,7 +153,6 @@ export default {
   align-items: center;
   cursor: pointer;
 }
-
 
 .discussions .message-active {
   width: 98.5%;

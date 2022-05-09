@@ -28,7 +28,7 @@
             </span>
             <div class="short-description">
               {{
-                getDistance(scope.data.location.lat, scope.data.location.lon) +
+                getDistance(scope.data.lat, scope.data.lon) +
                 " km"
               }}
             </div>
@@ -73,7 +73,7 @@
       <img src="@/assets/nope.png" @click="decide('nope')" />
       <img src="@/assets/super-like.png" @click="decide('super')" />
       <img src="@/assets/like.png" @click="decide('like')" />
-      <img src="@/assets/help.png" @click="decide('help')" />
+      <img src="@/assets/help.png" @click="decide('boost')" />
     </div>
   </div>
 </template>
@@ -172,6 +172,9 @@ export default {
         case "super":
           console.log("super", e.item.fullName);
           break;
+        case "boost":
+          console.log("boost", e.item.fullName);
+          break;
 
         default:
           break;
@@ -186,6 +189,14 @@ export default {
         }
       } else if (choice === "help") {
         window.open("https://shanlh.github.io/vue-tinder");
+      } else if (choice === "boost") {
+        console.log("boost");
+        MatchService.boost().then((e) => {
+          this.$eventBus.$emit("nofication", {
+            message: e.data,
+            status: "success",
+          });
+        });
       } else {
         this.$refs.tinder.decide(choice);
       }

@@ -43,6 +43,7 @@ export default {
     this.socket.off("connected");
     this.socket.off("registerSuccess");
     this.socket.off("receiveMessage");
+    this.socket.off("seen");
   },
   methods: {
     connectSocket() {
@@ -61,8 +62,8 @@ export default {
         this.$eventBus.$emit("receiveNewMessage", message);
       });
 
-      socket.on("seenMessage", () => {
-        this.$eventBus.$emit("loadConversations");
+      socket.on("seen", (cm) => {
+        this.$eventBus.$emit("seen", cm);
       });
 
       return socket;

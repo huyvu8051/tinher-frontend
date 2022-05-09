@@ -13,6 +13,15 @@ import GlobalComponents from "./plugins/GlobalComponents"
 
 import vuetify from './plugins/vuetify'
 
+import Cloudinary from 'cloudinary-vue';
+
+Vue.use(Cloudinary, {
+  configuration: {
+    cloudName: "bobvu-it",
+    components: [ "CldImage" ]
+  }
+});
+
 
 Vue.config.productionTip = false
 

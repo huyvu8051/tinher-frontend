@@ -25,7 +25,7 @@
 
       <!-- <p class="time">14h58</p> -->
 
-      <!-- <p class="response-time time">15h04</p> -->
+      <p class="response-time time">{{ isPartnerSeen }}</p>
     </v-responsive>
 
     <!-- Text field -->
@@ -50,6 +50,8 @@ import ChatService from "@/services/ChatService";
 import MapperService from "@/services/MapperService";
 
 import CMHeader from "@/components/chat/CMHeader";
+
+import Moment from "moment";
 export default {
   components: {
     CMHeader,
@@ -81,26 +83,55 @@ export default {
     }
   },
   created() {
-    
     this.loadChatMessageByConvId(1);
+
+    this.$eventBus.$on("seen", (cm) => {
+      this.messages = this.messages.map((e) => {
+        if (
+          e.key.conversationId === cm.key.conversationId &&
+          e.key.lastMessageTime === cm.key.lastMessageTime
+        ) {
+          return cm;
+        }
+
+        return e;
+      });
+    });
+  },
+  computed: {
+    isPartnerSeen() {
+      var seener = this.messages
+        .at(-1)
+        .seeners.find(
+          (e) => e.username === this.conversation.displayedUser.username
+        );
+
+      if (seener && this.isOwnMessage(this.messages.at(-1))) {
+        return "seen at " + this.getHour(seener.seenAt);
+      }
+
+      return "";
+    },
   },
   beforeDestroy() {
+    this.$eventBus.$off("seen");
   },
   methods: {
+    getHour(long) {
+      return Moment(long).format("h:mm a");
+    },
+
     isOwnMessage(item) {
       return item.authorId === this.$store.state.loginData.username;
     },
     receiveNewMessage(msg) {
-      
-      if(msg.key.conversationId !== this.$route.params.conversationId){
+      if (msg.key.conversationId !== this.$route.params.conversationId) {
         return;
       }
 
       var e = this.messages.find(
         (e) => e.key.lastMessageTime === msg.key.lastMessageTime
       );
-
-    
 
       if (e === null || e === undefined) {
         MapperService.mapChatMessageToDisplayedUser([msg], this.users);
@@ -140,11 +171,15 @@ export default {
       // console.log(this.messages);
     },
     sendMessage() {
+      var text = this.message.trim();
+
+      if (text == "") return;
+
       var now = new Date().getTime();
 
       ChatService.sendMessage({
         conversationId: this.$route.params.conversationId,
-        chatMessage: this.message,
+        chatMessage: text,
         sentAt: now,
       })
         .then((e) => {
@@ -160,6 +195,12 @@ export default {
           lastMessageTime: now,
         },
         text: this.message,
+        seeners: [
+          {
+            username: this.$store.state.loginData.username,
+            seenAt: now,
+          },
+        ],
       });
       this.message = "";
       this.currScrollHeigh = 0;

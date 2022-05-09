@@ -9,4 +9,8 @@ export default {
         return Api().post("/user/match/like", data);
     },
    
+    boost() {
+        return Api().post("/user/match/boost");
+    },
+   
 }

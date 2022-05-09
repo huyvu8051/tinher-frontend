@@ -12,6 +12,8 @@
 
 <script>
 import axios from "axios";
+
+
 export default {
   props: {
     value: String,
@@ -53,12 +55,15 @@ export default {
       })
         .then((response) => {
           this.icon = "check_circle_outline";
+          console.log(response.data.data.display_url);
           this.$emit("input", response.data.data.display_url);
         })
         .catch((error) => {
           this.icon = "error";
           console.error(error);
         });
+
+    
     },
   },
 };
