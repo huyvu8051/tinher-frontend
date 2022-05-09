@@ -31,6 +31,12 @@
           </v-list-item-icon>
           <v-list-item-title>Profile</v-list-item-title>
         </v-list-item>
+        <v-list-item @click="logout()">
+          <v-list-item-icon>
+            <v-icon>logout</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>Logout</v-list-item-title>
+        </v-list-item>
       </v-list-item-group>
     </v-list>
   </v-navigation-drawer>
@@ -46,7 +52,14 @@ export default {
     this.$eventBus.$on("drawer", () => {
       this.drawer = !this.drawer;
     });
-  },
+  },methods:{
+    logout(){
+      this.$store.commit("logout");
+      this.$router.push({
+        name: "login"
+      })
+    }
+  }
 };
 </script>
 

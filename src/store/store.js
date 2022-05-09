@@ -30,6 +30,12 @@ export default new Vuex.Store({
                 lon: data.longitude
             };
         },
+        logout(state){
+            state.loginData = null;
+            state.jwt = "",
+            state.geoLocation = {},
+            state.socket = null;
+        }
 
 
     }

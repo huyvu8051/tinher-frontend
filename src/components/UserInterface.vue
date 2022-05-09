@@ -20,6 +20,7 @@ import Navigation from "@/components/Navigation";
 
 import GeoService from "@/services/GeoService";
 
+import MapperService from "@/services/MapperService";
 import io from "socket.io-client";
 
 export default {
@@ -57,9 +58,24 @@ export default {
           console.log("connect success!", data);
         });
 
-      socket.on("receiveMessage", (message) => {
+      socket.on("receiveMessage", (message, users) => {
+        MapperService.mapChatMessageToDisplayedUser([message], users);
+
         this.$eventBus.$emit("loadConversations");
         this.$eventBus.$emit("receiveNewMessage", message);
+
+        console.log(
+          this.$route.params.conversationId === message.conversationId
+        );
+
+        if (this.$route.params.conversationId !== message.conversationId) {
+          this.$success(
+            "New message from " +
+              message.displayedUser.fullName +
+              ": " +
+              message.text
+          );
+        }
       });
 
       socket.on("seen", (cm) => {

@@ -27,10 +27,8 @@
               {{ scope.data.about }}
             </span>
             <div class="short-description">
-              {{
-                getDistance(scope.data.lat, scope.data.lon) +
-                " km"
-              }}
+              {{ getDistance(scope.data.lat, scope.data.lon) + " km" }}
+              {{ isBoosted(scope.data.boostTime) }}
             </div>
             <div class="short-description">
               {{ scope.data.gender }}
@@ -71,7 +69,6 @@
     <div class="btns">
       <img src="@/assets/rewind.png" @click="decide('rewind')" />
       <img src="@/assets/nope.png" @click="decide('nope')" />
-      <img src="@/assets/super-like.png" @click="decide('super')" />
       <img src="@/assets/like.png" @click="decide('like')" />
       <img src="@/assets/help.png" @click="decide('boost')" />
     </div>
@@ -100,6 +97,14 @@ export default {
     this.mock();
   },
   methods: {
+    isBoosted(long) {
+      var now = new Date().getTime();
+      if (now < long) {
+        return "Boosted";
+      }
+
+      return "";
+    },
     showMoreInfo(e) {
       console.log("showMoreInfo");
     },
@@ -169,9 +174,6 @@ export default {
         case "nope":
           console.log("nope", e.item.fullName);
           break;
-        case "super":
-          console.log("super", e.item.fullName);
-          break;
         case "boost":
           console.log("boost", e.item.fullName);
           break;
@@ -192,9 +194,11 @@ export default {
       } else if (choice === "boost") {
         console.log("boost");
         MatchService.boost().then((e) => {
-          this.$eventBus.$emit("nofication", {
-            message: e.data,
-            status: "success",
+          this.$swal({
+            icon: "success",
+            title: "Yay!",
+            text: "Your profile is boosting, everyone will see you on top in your area!",
+            timer: 3000,
           });
         });
       } else {
