@@ -1,60 +1,68 @@
 <template>
   <h-flex-layout>
-    <b>PROFILE</b>
-    <ManageProfileImage :images="userSetting.images" />
-    <v-textarea
-      name="input-7-1"
-      label="About"
-      v-model="userSetting.about"
-      hint="Tell some think about you"
-    >
-    </v-textarea>
-
-    <p>passion {{ userSetting.passions }}</p>
-    <div class="passions">
-      <v-checkbox
-        class="passion-checkbox"
-        v-for="(item, index) in passions"
-        :key="index"
-        v-model="userSetting.passions"
-        :label="item"
-        :value="item"
+    <SettingGroup title="Upload images">
+      <ManageProfileImage :images="userSetting.images" />
+    </SettingGroup>
+    <SettingGroup title="Edit About">
+      <v-textarea
+        name="input-7-1"
+        label="About"
+        v-model="userSetting.about"
+        hint="Tell some think about you"
       >
-      </v-checkbox>
-    </div>
+      </v-textarea>
+    </SettingGroup>
 
-    <p>{{ userSetting.gender }}</p>
+    <SettingGroup :title="'Select passions ' + userSetting.passions">
+      <!-- <p>passion {{ userSetting.passions }}</p> -->
+      <div class="passions">
+        <v-checkbox
+          class="passion-checkbox"
+          v-for="(item, index) in passions"
+          :key="index"
+          v-model="userSetting.passions"
+          :label="item"
+          :value="item"
+        >
+        </v-checkbox>
+      </div>
+    </SettingGroup>
 
-    <v-select
-      v-model="userSetting.gender"
-      :items="genders"
-      label="Gender"
-    ></v-select>
+    <SettingGroup title="Your gender">
+      <v-select v-model="userSetting.gender" :items="genders" label="Gender">
+      </v-select>
+    </SettingGroup>
 
-    <p> Distance preference {{ userSetting.distancePreference }} km</p>
+    <SettingGroup
+      :title="'Distance preference: ' + userSetting.distancePreference + ' km'"
+    >
+      <v-slider
+        v-model="userSetting.distancePreference"
+        hint="Distance preference"
+        :max="161"
+        :min="5"
+      />
+    </SettingGroup>
 
-    <v-slider
-      v-model="userSetting.distancePreference"
-      hint="Distance preference"
-      :max="161"
-      :min="5"
-    ></v-slider>
+    <SettingGroup
+      :title="
+        ' Age preference: from ' +
+        userSetting.agePreference[0] +
+        ' to ' +
+        userSetting.agePreference[1] +
+        ' year old'
+      "
+    >
+      <p></p>
+      <v-range-slider
+        v-model="userSetting.agePreference"
+        hint="Age preference"
+        :max="100"
+        :min="18"
+      ></v-range-slider>
+    </SettingGroup>
 
-    <p>
-      Age preference from {{ userSetting.agePreference[0] }} to
-      {{ userSetting.agePreference[1] }}
-    </p>
-    <v-range-slider
-      v-model="userSetting.agePreference"
-      hint="Age preference"
-      :max="100"
-      :min="18"
-    ></v-range-slider>
-
-   
-
-    <p>Looking for {{ userSetting.lookingFor }}</p>
-    <div>
+    <SettingGroup :title="'Looking for ' + userSetting.lookingFor">
       <v-checkbox
         v-for="(item, index) in genders"
         :key="index"
@@ -63,34 +71,38 @@
         :value="item"
       >
       </v-checkbox>
-    </div>
-    <v-text-field
-      v-model="userSetting.yearOfBirth"
-      type="number"
-      label="Year of birth"
-      append-outer-icon="add"
-      @click:append-outer="increment"
-      prepend-icon="remove"
-      @click:prepend="decrement"
-    ></v-text-field>
+    </SettingGroup>
+    <SettingGroup :title="'Your date of birth: ' + userSetting.dateOfBirth">
+      <v-date-picker
+        v-model="userSetting.dateOfBirth"
+        class="mt-4"
+        min="1800-01-01"
+        :max="maxDate()"
+        width="auto"
+        @input="show"
+      ></v-date-picker>
+    </SettingGroup>
 
     <!-- cc -->
 
     <v-btn @click="backToSlide" color="warning">back to slide</v-btn>
     <v-btn @click="save" color="primary">submit</v-btn>
- </h-flex-layout>
+  </h-flex-layout>
 </template>
 <script>
 import SettingService from "@/services/SettingService";
 
 import ManageProfileImage from "@/components/setting/ManageProfileImage";
+import SettingGroup from "@/components/setting/SettingGroup";
 import UploadImage from "@/components/UploadImage";
 export default {
   components: {
     UploadImage,
     ManageProfileImage,
+    SettingGroup,
   },
   data: () => ({
+    date: "",
     about: "",
     passions: [],
     selectedPassion: [],
@@ -108,7 +120,7 @@ export default {
     ],
     distancePreference: 20,
     userSetting: {
-      agePreference: []
+      agePreference: [],
     },
     picker: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
       .toISOString()
@@ -124,14 +136,20 @@ export default {
   },
 
   methods: {
-    increment() {
-      this.userSetting.yearOfBirth =
-        parseInt(this.userSetting.yearOfBirth, 10) + 1;
+    maxDate() {
+      var today = new Date();
+      var dd = String(today.getDate()).padStart(2, "0");
+      var mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+      var yyyy = today.getFullYear() - 18;
+
+      console.log(yyyy + "-" + mm + "-" + dd);
+
+      return yyyy + "-" + mm + "-" + dd;
     },
-    decrement() {
-      this.userSetting.yearOfBirth =
-        parseInt(this.userSetting.yearOfBirth, 10) - 1;
+    show(e) {
+      console.log(e, this.userSetting);
     },
+
     save() {
       console.log(this.userSetting);
       this.userSetting.lat = this.$store.state.geoLocation.lat;

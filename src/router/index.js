@@ -17,6 +17,11 @@ const router = new Router({
           name: 'slide',
           component: () => import("@/components/Slide")
         },
+        {
+          path: 'userpage',
+          name: 'userpage',
+          component: () => import("@/components/UserPage")
+        },
 
         {
           path: "profile",

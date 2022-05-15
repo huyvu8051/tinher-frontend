@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app flat>
+  <v-app-bar app flat class="app-bar">
     <v-app-bar-nav-icon @click="drawer"></v-app-bar-nav-icon>
     <router-link :to="{ name: 'slide' }">
       <v-img

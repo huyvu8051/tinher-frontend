@@ -1,34 +1,53 @@
 <template>
   <div>
-    <v-row>
-      <draggable :list="images" @change="onUnpublishedChange">
-        <v-col
-          cols="4"
-          v-for="(item, index) in images"
-          :key="index"
-          class="imgg"
-        >
-          <v-card max-width="250px" >
-            <h-image-wrapper :src="item.url" height="350px" />
+    <draggable
+      handle=".handle"
+      class="row"
+      :list="images"
+      @change="onUnpublishedChange"
+    >
+      <v-col
+        class="handle"
+        cols="4"
+        v-for="(item, index) in images"
+        :key="index"
+      >
+        <v-card>
+          <h-image-wrapper :src="item.url" height="450px">
+            <v-btn
+              color="red"
+              dark
+              right
+              absolute
+              fab
+              x-small
+              style="top: 5px; right: 5px"
+              @click="deleteItem(index)"
+            >
+              <v-icon> delete </v-icon>
+            </v-btn>
+          </h-image-wrapper>
+        </v-card>
+      </v-col>
+      <v-col cols="4">
+        <v-card>
+          <v-img height="450px">
+            <v-btn
+              color="red"
+              dark
+              fab
+              x-small
+              @click="openUploadForm()"
+              :style="{ top: '50%', left: '50%', transform: 'translate(-50%)' }"
+            >
+              <v-icon> add </v-icon>
+            </v-btn>
+          </v-img>
+        </v-card>
+      </v-col>
+    </draggable>
 
-            <v-card-actions>
-              <v-spacer />
-              <v-btn
-                color="red"
-                dark
-                fab
-                small
-                depressed
-                @click="deleteItem(index)"
-              >
-                <v-icon> clear </v-icon>
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </draggable>
-    </v-row>
-    <UploadImage @input="addNewImage" />
+    <UploadImage @input="addNewImage" ref="uploadImage" />
   </div>
 </template>
 
@@ -43,21 +62,19 @@ export default {
   props: {
     images: {
       type: Array,
-      default: () => [
-      /*  "https://i.ibb.co/n8pd74P/277363698-302867688656780-4234363800179639193-n.jpg",
-        "https://i.ibb.co/0CBk0ZB/277097823-302762431943013-4196997419560558980-n.jpg",
-        "https://i.ibb.co/WVbPpxD/277349336-2160720654077479-5453383725139124940-n.jpg",
-        "https://i.ibb.co/CHtj7rd/277103649-133227935933331-3069637674950538478-n.jpg",
-        "https://i.ibb.co/30m1MJK/277370931-653715525863211-7232555358844041402-n.jpg",
-        "https://i.ibb.co/tLk8bk5/277461786-139278638626236-3033352952824009429-n.jpg",  */
-      ],
+      default: () => [],
     },
   },
+  updated() {
+    console.log(this.images);
+  },
   data() {
-    return {
-    };
+    return {};
   },
   methods: {
+    openUploadForm(){
+      this.$refs.uploadImage.openUploadForm();
+    },
     onUnpublishedChange(e) {
       //console.log(e, this.images);
     },
@@ -65,14 +82,14 @@ export default {
       this.images.splice(index, 1);
     },
     addNewImage(link) {
-      this.images.push(link);
+      this.images.push({
+        alt: null,
+        url: link,
+      });
     },
   },
 };
 </script>
 
 <style>
-.imgg {
-  display: inline-block;
-}
 </style>

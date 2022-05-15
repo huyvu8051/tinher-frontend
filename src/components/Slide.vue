@@ -9,61 +9,11 @@
       :max="3"
     >
       <template slot-scope="scope">
-        <div class="delimiters">
-          <button
-            class="bullet"
-            v-bind:class="{ active: index == scope.data.current }"
-            v-for="(item, index) in scope.data.images"
-            :key="item.id"
-          >
-            {{ index }}
-          </button>
-        </div>
-        <div class="info-container">
-          <div class="short-info">
-            <span class="fullname"> {{ scope.data.fullName }} </span>
-            <span class="age">{{ getAge(scope.data.yearOfBirth) }}</span> <br />
-            <span class="short-description">
-              {{ scope.data.about }}
-            </span>
-            <div class="short-description">
-              {{ getDistance(scope.data.lat, scope.data.lon) + " km" }}
-              {{ isBoosted(scope.data.boostTime) }}
-            </div>
-            <div class="short-description">
-              {{ scope.data.gender }}
-            </div>
-
-            <div class="short-description">
-              <v-chip
-                class="ma-2"
-                color="green"
-                text-color="white"
-                v-for="(item, index) in scope.data.passions"
-                :key="item + scope.data.id + index"
-              >
-                {{ item }}
-              </v-chip>
-            </div>
-          </div>
-          <button @click="showMoreInfo">
-            <span class="material-icons-outlined"> info </span>
-          </button>
-          <div class="more-info"></div>
-        </div>
-        <div
-          v-for="(item, index) in scope.data.images"
-          :key="item.id"
-          v-show="index == scope.data.current"
-          class="pic"
-          @mousedown="mousedown"
-          @mouseup="mouseup"
-          :style="{
-            'background-image': `url(` + item.url + `)`,
-          }"
-        />
+        <UserPage :userData="scope.data" class="test"  />
       </template>
-
+      <img class="like-pointer" slot="like" src="@/assets/like-txt.png" />
+      <img class="nope-pointer" slot="nope" src="@/assets/nope-txt.png" />
+      <img class="super-pointer" slot="super" src="@/assets/super-txt.png" />
       <img class="rewind-pointer" slot="rewind" src="@/assets/rewind-txt.png" />
     </Tinder>
     <div class="btns">
@@ -77,62 +27,24 @@
 
 <script>
 import Tinder from "vue-tinder";
-import source from "@/components/bing";
+import UserPage from "@/components/UserPage";
 
-import GeoService from "@/services/GeoService";
 
 import MatchService from "@/services/MatchService";
 
 export default {
   name: "App",
-  components: { Tinder },
+  components: { Tinder, UserPage },
   data: () => ({
     queue: [],
     offset: 0,
     history: [],
-    offsetX: 0,
-    offsetY: 0,
   }),
   created() {
     this.mock();
   },
   methods: {
-    isBoosted(long) {
-      var now = new Date().getTime();
-      if (now < long) {
-        return "Boosted";
-      }
-
-      return "";
-    },
-    showMoreInfo(e) {
-      console.log("showMoreInfo");
-    },
-    mousedown(e) {
-      this.offsetX = e.offsetX;
-      this.offsetY = e.offsetY;
-    },
-    mouseup(e) {
-      //console.log("mouseup", e);
-
-      if (this.offsetX === e.offsetX && this.offsetY === e.offsetY) {
-        if (e.offsetX > e.srcElement.offsetWidth / 2) {
-          if (this.queue[0].current < this.queue[0].images.length - 1) {
-            console.log("right");
-            this.queue[0].current++;
-          }
-        } else {
-          if (this.queue[0].current > 0) {
-            console.log("left");
-            this.queue[0].current--;
-          }
-        }
-
-        //this.queue[0].images[this.current].isShow = true;
-
-        console.log("Show image ", this.queue[0].current);
-      }
-    },
+   
 
     mock(count = 5, append = true) {
       console.log("mock");
@@ -205,17 +117,7 @@ export default {
         this.$refs.tinder.decide(choice);
       }
     },
-    getAge(yob) {
-      var today = new Date();
-      return today.getFullYear() - yob;
-    },
-    getDistance(lat, lon) {
-      var currLat = this.$store.state.geoLocation.lat;
-      var currLon = this.$store.state.geoLocation.lon;
-      var dis = GeoService.distance(lat, lon, currLat, currLon);
-
-      return Math.round(dis);
-    },
+   
   },
 };
 </script>
@@ -282,12 +184,7 @@ body {
   height: 78px;
 }
 
-.pic {
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-}
+
 
 .pic2 {
   width: 100%;
@@ -329,67 +226,7 @@ body {
 .btns img:nth-last-child(1) {
   margin-right: 0;
 }
-.delimiters {
-  position: absolute;
-
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  display: flex;
-
-  top: 5px;
-}
-.bullet {
-  font-size: 0cm;
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.207);
-  border: none;
-  border-radius: 2px;
-
-  vertical-align: middle;
-  margin-left: 2px;
-  margin-right: 2px;
-  display: inline-block;
-  cursor: pointer;
-
-  margin: 2px;
-  height: 4px;
-}
-
-.active {
-  background-color: rgb(255, 255, 255);
-}
-
-.info-container {
-  display: table;
-  color: white;
-  bottom: 20px;
-  position: absolute;
-  text-align: left;
-}
-
-.short-info {
-  padding: 10px;
-  display: table-cell;
-  width: 90%;
-}
-
-.more-info {
-  width: fit-content;
-}
-
-.fullname {
-  font-weight: bold;
-  font-size: 32px;
-}
-.short-description {
-  font-size: 17px;
-}
-.age {
-  font-size: 23px;
-}
-.more-info-btn {
-  cursor: pointer;
+.test {
+  height: inherit;
 }
 </style>

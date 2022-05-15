@@ -1,5 +1,6 @@
 <template>
   <v-file-input
+    ref="image"
     name="image"
     accept="image/*"
     label="Upload image"
@@ -7,12 +8,12 @@
     show-size
     outlined
     :prepend-icon="icon"
+    style="display:none"
   />
 </template>
 
 <script>
 import axios from "axios";
-
 
 export default {
   props: {
@@ -29,6 +30,9 @@ export default {
   },
 
   methods: {
+    openUploadForm() {
+      this.$refs.image.$refs.input.click();
+    },
     toBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -62,8 +66,6 @@ export default {
           this.icon = "error";
           console.error(error);
         });
-
-    
     },
   },
 };

@@ -58,7 +58,8 @@ export default {
           console.log("connect success!", data);
         });
 
-      socket.on("receiveMessage", (message, users) => {
+      socket.on("message", (message, users) => {
+        console.log("receiveMessage");
         MapperService.mapChatMessageToDisplayedUser([message], users);
 
         this.$eventBus.$emit("loadConversations");
@@ -96,5 +97,7 @@ export default {
   /* text-align: center; */
   color: #2c3e50;
   /* margin-top: 60px; */
+  background-color: #FFFFFF;
+  overflow: hidden;
 }
 </style>

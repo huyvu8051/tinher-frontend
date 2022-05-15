@@ -243,9 +243,10 @@ export default {
 .header-chat {
   background-color: #fff;
   height: 90px;
-  box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1); */
   display: flex;
   align-items: center;
+  border-bottom: solid 1px #e0e0e0;
 }
 
 .chat .header-chat .icon {
@@ -269,13 +270,16 @@ export default {
 }
 
 .chat .messages-chat {
-  position: absolute;
-  top: 100px;
-  bottom: 100px;
-  width: 74%;
+  /* position: absolute; */
+  top: 0px;
+  bottom: 0px;
+  width: inherit;
+  height: calc(100vh - 219px);
+
+  background-color: green;
 
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 .chat .messages-chat .message {
@@ -330,7 +334,8 @@ export default {
 }
 
 .footer-chat {
-  width: calc(72%);
+  padding: 10px;
+  width: 50%;
   height: 80px;
   display: flex;
   align-items: center;

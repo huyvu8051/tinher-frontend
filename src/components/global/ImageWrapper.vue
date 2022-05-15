@@ -1,13 +1,15 @@
 <template >
   <v-img
-    :lazy-src="require(`@/assets/logo.png`)"
+    :lazy-src="require(`@/assets/dating-icon.png`)"
     :src="url"
     :height="height"
     :width="width"
     :contain="contain"
-    class="my-1 rounded"
-    v-on:error="url = require(`@/assets/logo.png`)"
-  />
+    class="ma-0 rounded"
+    v-on:error="url = require(`@/assets/dating-icon.png`)"
+  >
+    <slot />
+  </v-img>
 </template>
 
 <script>
@@ -22,12 +24,11 @@ export default {
       type: String,
       default: "auto",
     },
-  
+
     contain: {
       type: Boolean,
       default: false,
     },
-  
   },
   data: () => {
     return {
@@ -44,7 +45,6 @@ export default {
   created() {
     this.url = this.src;
   },
-  
 };
 </script>
 

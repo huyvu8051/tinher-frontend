@@ -4,7 +4,7 @@
       class="discussion"
       v-for="(item, index) in conversations"
       :key="index + Math.random()"
-      @click="showConversation(item.conversationId)"
+      @click="showConversation(item)"
       :style="{
         'background-color': isRouted(item),
       }"
@@ -45,11 +45,9 @@ export default {
     this.$eventBus.$on("loadConversations", () => {
       this.loadConversations();
     });
-   
   },
   beforeDestroy() {
     this.$eventBus.$off("loadConversations");
-  
   },
   updated() {
     var container = document.querySelector(".v-responsive-conver");
@@ -60,14 +58,13 @@ export default {
   },
   computed: {},
   methods: {
-   
     isRouted(item) {
       if (item.conversationId == this.$route.params.conversationId) {
         return "#dcdcdc";
       }
       return "#fafafa";
     },
-   
+
     getHour(long) {
       return Moment(long).format("h:mm a");
     },
@@ -80,15 +77,19 @@ export default {
       }
       return true;
     },
-    showConversation(convId) {
-      var conver = this.conversations.find((e) => e.conversationId == convId);
+    showConversation(conv) {
+      var conver = this.conversations.find(
+        (e) => e.conversationId == conv.conversationId
+      );
       conver.isNotSeen = false;
+
+      this.$eventBus.$emit("showUserPage", conv);
 
       this.$router
         .push({
           name: "chat",
           params: {
-            conversationId: convId,
+            conversationId: conv.conversationId,
           },
         })
         .catch((e) => e);
@@ -133,18 +134,17 @@ export default {
 /* === CONVERSATIONS === */
 
 .discussions {
-  width: 25%;
-  position: absolute;
+  width: inherit;
+  height: inherit;
   bottom: 10px;
   top: 0px;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: scroll;
   display: inline-block;
-  border-right: solid 1px #e0e0e0;
 }
 
 .discussions .discussion {
-  width: 100%;
+  width: inherit;
   height: 90px;
   background-color: #fafafa;
   border-bottom: solid 1px #e0e0e0;
@@ -211,6 +211,7 @@ export default {
   font-family: "Open Sans", sans-serif;
   font-size: 11px;
   padding: 3px 8px;
+  margin-right: 5px;
   color: #bbb;
   background-color: #fff;
   border: 1px solid #e5e5e5;
