@@ -83,7 +83,6 @@ export default {
       );
       conver.isNotSeen = false;
 
-      this.$eventBus.$emit("showUserPage", conv);
 
       this.$router
         .push({

@@ -40,7 +40,7 @@
       type="text"
       @click:append-outer="sendMessage"
       v-on:keyup.enter.exact="sendMessage"
-    ></v-text-field>
+    />
   </section>
 </template>
 
@@ -70,7 +70,11 @@ export default {
       this.messages = [];
       this.message = "";
       this.currScrollHeigh = 0;
-
+      if (this.conversation) {
+        this.$eventBus.$emit("showUserPage", this.conversation.displayedUser);
+      } else {
+        this.$eventBus.$emit("showUserPage", null);
+      }
       this.loadChatMessageByConvId(1);
     },
   },
@@ -83,6 +87,7 @@ export default {
     }
   },
   created() {
+    this.$eventBus.$emit("showUserPage", this.conversation);
     this.loadChatMessageByConvId(1);
 
     this.$eventBus.$on("seen", (cm) => {
@@ -163,7 +168,7 @@ export default {
       var messages = response.data.chatMessages;
 
       MapperService.mapChatMessageToDisplayedUser(messages, this.users);
-
+      this.$eventBus.$emit("showUserPage", this.conversation.displayedUser);
       messages.forEach((element) => {
         this.messages.unshift(element);
       });
@@ -274,9 +279,9 @@ export default {
   top: 0px;
   bottom: 0px;
   width: inherit;
-  height: calc(100vh - 219px);
-
-  background-color: green;
+  height: calc(100vh - 250px);
+/* 
+  background-color: green; */
 
   overflow-x: hidden;
   overflow-y: scroll;
@@ -335,13 +340,9 @@ export default {
 
 .footer-chat {
   padding: 10px;
-  width: 50%;
+  width: 100%;
   height: 80px;
-  display: flex;
-  align-items: center;
-  position: absolute;
-  bottom: 0;
-  background-color: transparent;
+  /* background-color: orange; */
   border-top: 2px solid #eee;
 }
 
